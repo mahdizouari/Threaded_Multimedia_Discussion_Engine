@@ -24,9 +24,12 @@ class ReactionController extends Controller
             ->first();
 
         if ($existingReaction) {
-            $existingReaction->appreciation()->update([
-                'type' => $validated['type'],
-            ]);
+            $appreciation = $existingReaction->appreciation;
+            if ($appreciation->type === $validated['type']) {
+                $existingReaction->delete(); // Toggle off
+            } else {
+                $appreciation->update(['type' => $validated['type']]);
+            }
         } else {
             $reaction = Reaction::create([
                 'user_id' => Auth::id(),
@@ -35,15 +38,12 @@ class ReactionController extends Controller
                 'reacted_at' => now(),
             ]);
 
-            Appreciation::create([
-                'reaction_id' => $reaction->id,
+            $reaction->appreciation()->create([
                 'type' => $validated['type'],
             ]);
         }
 
-        return redirect()
-            ->route('posts.show', $post)
-            ->with('success', 'Reaction added successfully.');
+        return back()->with('success', 'Reaction updated.');
     }
 
     public function reactToComment(Request $request, Comment $comment)
@@ -58,9 +58,12 @@ class ReactionController extends Controller
             ->first();
 
         if ($existingReaction) {
-            $existingReaction->appreciation()->update([
-                'type' => $validated['type'],
-            ]);
+            $appreciation = $existingReaction->appreciation;
+            if ($appreciation->type === $validated['type']) {
+                $existingReaction->delete(); // Toggle off
+            } else {
+                $appreciation->update(['type' => $validated['type']]);
+            }
         } else {
             $reaction = Reaction::create([
                 'user_id' => Auth::id(),
@@ -69,16 +72,11 @@ class ReactionController extends Controller
                 'reacted_at' => now(),
             ]);
 
-            Appreciation::create([
-                'reaction_id' => $reaction->id,
+            $reaction->appreciation()->create([
                 'type' => $validated['type'],
             ]);
         }
 
-        $post = $comment->conversation->post;
-
-        return redirect()
-            ->route('posts.show', $post)
-            ->with('success', 'Reaction added successfully.');
+        return back()->with('success', 'Reaction updated.');
     }
 }

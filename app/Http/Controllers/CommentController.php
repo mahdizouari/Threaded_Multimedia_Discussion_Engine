@@ -35,12 +35,12 @@ class CommentController extends Controller
 
         return redirect()
             ->route('posts.show', $post)
-            ->with('success', 'Comment added successfully.');
+            ->with('success', 'Comment published.');
     }
 
     public function destroy(Comment $comment)
     {
-        if ($comment->user_id !== Auth::id()) {
+        if ($comment->user_id !== Auth::id() && !in_array(Auth::user()->role, ['admin', 'moderator'])) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -50,19 +50,41 @@ class CommentController extends Controller
 
         return redirect()
             ->route('posts.show', $post)
-            ->with('success', 'Comment deleted successfully.');
+            ->with('success', 'Comment deleted.');
     }
 
     public function report(Comment $comment)
     {
-        $comment->update([
-            'is_reported' => true,
-        ]);
+        if ($comment->user_id === Auth::id()) {
+            return back()->with('error', 'You cannot report your own comment.');
+        }
+
+        $comment->increment('reports_count');
+        $comment->update(['is_reported' => true]);
 
         $post = $comment->conversation->post;
 
         return redirect()
             ->route('posts.show', $post)
-            ->with('success', 'Comment reported successfully.');
+            ->with('success', 'Comment reported. It will be hidden automatically if it accumulates too many reports.');
+    }
+
+    public function update(Request $request, Comment $comment)
+    {
+        if ($comment->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'text' => 'required|string',
+        ]);
+
+        $comment->update([
+            'text' => $validated['text'],
+        ]);
+
+        return redirect()
+            ->route('posts.show', $comment->conversation->post)
+            ->with('success', 'Comment updated.');
     }
 }   

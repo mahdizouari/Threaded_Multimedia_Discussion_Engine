@@ -6,14 +6,13 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\ModerationController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PostController::class, 'index'])->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'role:admin,moderator'])->name('dashboard');
+Route::get('/dashboard', [ModerationController::class, 'index'])
+    ->middleware(['auth', 'role:admin,moderator'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,6 +29,7 @@ Route::resource('posts', PostController::class)->only([
 
 // AUTHENTICATED USER ROUTES
 Route::middleware(['auth'])->group(function () {
+    Route::view('/contact', 'user.contact.index')->name('contact.index');
 
     // Posts
     Route::resource('posts', PostController::class)->except([
@@ -49,38 +49,68 @@ Route::middleware(['auth'])->group(function () {
         ->name('comments.destroy');
 
     // Report a comment
-    Route::patch('/comments/{comment}/report', [CommentController::class, 'report'])
+    Route::post('/comments/{comment}/report', [CommentController::class, 'report'])
         ->name('comments.report');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])
+        ->name('comments.update');
 
     // Reactions for posts
     Route::post('/posts/{post}/reactions', [ReactionController::class, 'reactToPost'])
-        ->name('posts.reactions.store');
+        ->name('react.post');
 
     // Reactions for comments
     Route::post('/comments/{comment}/reactions', [ReactionController::class, 'reactToComment'])
-        ->name('comments.reactions.store');
+        ->name('react.comment');
+
+    // Messaging
+    Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}', [\App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
 });
 
 
 // MODERATOR + ADMIN ROUTES
 Route::middleware(['auth', 'role:admin,moderator'])->group(function () {
+    Route::get('/admin/approvals', [ModerationController::class, 'approvals'])
+        ->name('admin.approvals');
+
+    Route::get('/admin/reports', [ModerationController::class, 'reports'])
+        ->name('admin.reports');
 
     // Categories
     Route::resource('categories', CategoryController::class);
 
-    // Approve a post
-    Route::patch('/posts/{post}/approve', [PostController::class, 'approve'])
+    // Moderation Actions
+    Route::post('/posts/{post}/approve', [ModerationController::class, 'approvePost'])
         ->name('posts.approve');
+
+    Route::delete('/posts/{post}/reject', [ModerationController::class, 'rejectPost'])
+        ->name('posts.reject');
+
+    Route::post('/posts/{post}/dismiss-report', [ModerationController::class, 'dismissReport'])
+        ->name('posts.dismiss-report');
+
+    Route::post('/comments/{comment}/dismiss-report', [ModerationController::class, 'dismissCommentReport'])
+        ->name('comments.dismiss-report');
+
+    Route::delete('/comments/{comment}/reject', [ModerationController::class, 'rejectComment'])
+        ->name('comments.reject');
 });
 
 
 // ADMIN ONLY ROUTES
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Future admin-only routes
-    // Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/team', [ModerationController::class, 'team'])
+        ->name('admin.team');
+
+    Route::post('/users/{user}/toggle-moderator', [ModerationController::class, 'toggleModerator'])
+        ->name('admin.toggle-moderator');
+
+    Route::post('/users/{user}/toggle-block', [ModerationController::class, 'toggleBlock'])
+        ->name('admin.toggle-block');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 
 

@@ -15,6 +15,7 @@ class UserRoleSeeder extends Seeder
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+            'username' => 'admin_pulse',
             'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
@@ -30,6 +31,7 @@ class UserRoleSeeder extends Seeder
         $mod = User::create([
             'name' => 'Moderator User',
             'email' => 'moderator@example.com',
+            'username' => 'mod_pulse',
             'password' => Hash::make('password'),
             'role' => 'moderator',
         ]);

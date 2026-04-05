@@ -18,5 +18,10 @@ class Category extends Model
     {
         return $this->hasMany(Post::class);
     }
+
+    public function moderators()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }
 

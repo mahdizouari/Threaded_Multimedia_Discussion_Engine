@@ -9,11 +9,24 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->username)) {
+                $user->username = 'Anon_' . strtoupper(bin2hex(random_bytes(3)));
+            }
+        });
+    }
+
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'role',
+        'is_blocked',
     ];
 
     protected $hidden = [
@@ -23,6 +36,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_blocked' => 'boolean',
     ];
 
     // Relations
@@ -44,6 +58,26 @@ class User extends Authenticatable
     public function reactions()
     {
         return $this->hasMany(Reaction::class);
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function moderatedCategories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function interests()
+    {
+        return $this->belongsToMany(Category::class, 'category_user_interests');
     }
 
     // Helpers for roles

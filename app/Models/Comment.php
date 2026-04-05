@@ -15,12 +15,25 @@ class Comment extends Model
         'text',
         'commented_at',
         'is_reported',
+        'reports_count',
     ];
 
     protected $casts = [
         'commented_at' => 'datetime',
-        'is_reported'  => 'boolean',
+        'is_reported' => 'boolean',
+        'reports_count' => 'integer',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($comment) {
+            if ($comment->reports_count >= 5) {
+                $comment->is_reported = true;
+            }
+        });
+    }
 
     public function conversation()
     {

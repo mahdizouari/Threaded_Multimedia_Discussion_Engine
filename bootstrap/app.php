@@ -14,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'role' => RoleMiddleware::class,
+            'block_check' => \App\Http\Middleware\CheckUserBlockStatus::class,
         ]);
+
+        $middleware->appendToGroup('web', \App\Http\Middleware\CheckUserBlockStatus::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
