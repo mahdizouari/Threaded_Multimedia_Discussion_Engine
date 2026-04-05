@@ -60,15 +60,26 @@
             @endforelse
         </div>
 
+        <!-- Image Preview Container (Initially Hidden) -->
+        <div id="image-preview-container" style="display: none; padding: 12px 24px; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.01);">
+            <div style="position: relative; display: inline-block; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); border: 2px solid white;">
+                <img id="image-preview" src="" alt="preview" style="max-width: 200px; max-height: 150px; display: block; object-fit: cover;">
+                <button type="button" onclick="clearImagePreview()" style="position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: var(--transition);" onmouseover="this.style.background='rgba(239, 68, 68, 0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">Image selected — ready to send</div>
+        </div>
+
         <!-- Chat form -->
         <div style="padding: 24px; border-top: 1px solid var(--border-glass);">
             <form action="{{ route('messages.store') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: center;">
                 @csrf
                 <input type="hidden" name="receiver_id" value="{{ $user->id }}">
                 
-                <label for="chat-file" style="cursor: pointer; color: var(--text-muted); padding: 8px; border-radius: 50%; transition: var(--transition);" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+                <label for="chat-file" id="chat-file-label" style="cursor: pointer; color: var(--text-muted); padding: 8px; border-radius: 50%; transition: var(--transition);" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                    <input type="file" id="chat-file" name="attachment" style="display: none;" onchange="this.parentElement.style.color='var(--accent-primary)'">
+                    <input type="file" id="chat-file" name="attachment" style="display: none;" onchange="handleFileSelect(this)">
                 </label>
 
                 <input type="text" name="body" placeholder="Type your message..." style="flex: 1; padding: 12px 20px; border-radius: var(--radius-pill); border: 1px solid var(--border-glass); background: rgba(0,0,0,0.02); outline: none;">
@@ -85,5 +96,44 @@
     // Auto scroll to bottom
     const thread = document.getElementById('chat-thread');
     thread.scrollTop = thread.scrollHeight;
+
+    function handleFileSelect(input) {
+        const container = document.getElementById('image-preview-container');
+        const preview = document.getElementById('image-preview');
+        const label = document.getElementById('chat-file-label');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Only preview images
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                    label.style.color = 'var(--accent-primary)';
+                    // Scroll to see preview
+                    thread.scrollTop = thread.scrollHeight;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                // For non-image files, just show the primary color on label
+                container.style.display = 'none';
+                label.style.color = 'var(--accent-primary)';
+            }
+        }
+    }
+
+    function clearImagePreview() {
+        const container = document.getElementById('image-preview-container');
+        const preview = document.getElementById('image-preview');
+        const input = document.getElementById('chat-file');
+        const label = document.getElementById('chat-file-label');
+
+        input.value = ''; // Clear file
+        preview.src = '';
+        container.style.display = 'none';
+        label.style.color = 'var(--text-muted)';
+    }
 </script>
 @endsection

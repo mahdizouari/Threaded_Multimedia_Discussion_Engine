@@ -5,17 +5,19 @@
 @section('content')
 <div class="moderation-container" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
     
-    <div class="glass-panel" style="padding: 32px; border-radius: var(--radius-lg); margin-bottom: 32px; background: var(--accent-gradient); color: white; box-shadow: var(--shadow-lg);">
-        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">Pending Approvals</h1>
-        <p style="opacity: 0.9; font-size: 15px;">Review and publish new community content waiting for verification.</p>
+    <div class="page-header">
+        <div style="position: relative; z-index: 1;">
+            <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px;">Pending Approvals</h1>
+            <p style="opacity: 0.9; font-size: 16px; font-weight: 500;">Review and publish new community content waiting for verification.</p>
+        </div>
         
         @if(auth()->user()->role === 'moderator')
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1;">
             <span style="font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7);">Assigned Scope:</span>
             @forelse(auth()->user()->moderatedCategories as $cat)
-                <span style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 4px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700;">{{ $cat->label }}</span>
+                <span class="badge" style="background: rgba(255,255,255,0.2); color: white; border: none;">{{ $cat->label }}</span>
             @empty
-                <span style="background: #ef4444; padding: 4px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700;">Global (Bypass)</span>
+                <span class="badge danger" style="background: #ef4444; color: white; border: none;">Global Bypass</span>
             @endforelse
         </div>
         @endif

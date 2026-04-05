@@ -18,13 +18,14 @@ class PostSeeder extends Seeder
     {
         $admin = User::where('role', 'admin')->first();
         $mod = User::where('role', 'moderator')->first();
+        $user = User::where('role', 'user')->first();
         
         $tech = Category::where('label', 'Technology')->first();
         $gaming = Category::where('label', 'Gaming')->first();
         $news = Category::where('label', 'News')->first();
 
         $p1 = Post::create([
-            'user_id' => $admin->id,
+            'user_id' => $user->id,
             'category_id' => $tech->id,
             'title' => 'The Future of AI in 2026',
             'content' => 'Artificial Intelligence is evolving faster than ever. We are seeing major breakthroughs in neural networks and practical applications in daily life.',
@@ -35,7 +36,7 @@ class PostSeeder extends Seeder
         \App\Models\Conversation::create(['post_id' => $p1->id, 'created_at' => now()]);
 
         $p2 = Post::create([
-            'user_id' => $mod->id,
+            'user_id' => $user->id,
             'category_id' => $gaming->id,
             'title' => 'GTA VI: New Leaks and Release Date',
             'content' => 'Latest rumors suggest that Rockstar is polishing the final build. The trailer showed incredible graphics and a living world like never before.',
@@ -46,7 +47,7 @@ class PostSeeder extends Seeder
         \App\Models\Conversation::create(['post_id' => $p2->id, 'created_at' => now()]);
 
         $p3 = Post::create([
-            'user_id' => $admin->id,
+            'user_id' => $user->id,
             'category_id' => $news->id,
             'title' => 'SpaceX Mission to Mars Updates',
             'content' => 'The Starship is ready for its next flight test. This mission marks a historic step towards multi-planetary civilization.',

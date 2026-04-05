@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pulse - The Modern Multimedia Forum</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/pulse_logo.png') }}">
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -247,9 +249,6 @@
             flex-direction: column;
             z-index: 100;
             overflow: visible;
-            /* Important: allow toggle to show outside */
-            - [x] Implement CSS Carousel Track in `pulse.blade.php`
-            - [/] Refactor `welcome.blade.php` with 3-visible logic and JS Auto-Slide */
         }
 
         .sidebar-inner {
@@ -476,7 +475,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         /* Carousel System */
@@ -497,7 +496,8 @@
         }
 
         .trending-card-reddit {
-            flex: 0 0 calc((100% - 40px) / 3); /* 3 visible on desktop */
+            flex: 0 0 calc((100% - 40px) / 3);
+            /* 3 visible on desktop */
             height: 200px;
             border-radius: 20px;
             position: relative;
@@ -507,10 +507,19 @@
         }
 
         @media (max-width: 1200px) {
-            .trending-card-reddit { flex: 0 0 calc((100% - 20px) / 2); } /* 2 visible */
+            .trending-card-reddit {
+                flex: 0 0 calc((100% - 20px) / 2);
+            }
+
+            /* 2 visible */
         }
+
         @media (max-width: 768px) {
-            .trending-card-reddit { flex: 0 0 100%; } /* 1 visible */
+            .trending-card-reddit {
+                flex: 0 0 100%;
+            }
+
+            /* 1 visible */
         }
 
         .carousel-btn {
@@ -537,8 +546,13 @@
             transform: translateY(-50%) scale(1.1);
         }
 
-        .carousel-btn.prev { left: -10px; }
-        .carousel-btn.next { right: -10px; }
+        .carousel-btn.prev {
+            left: -10px;
+        }
+
+        .carousel-btn.next {
+            right: -10px;
+        }
 
         .carousel-dots {
             display: flex;
@@ -675,10 +689,10 @@
         }
 
         .feed-container.grid-view .post-media {
-            width: calc(100% + 40px);
-            margin: 4px -20px 12px -20px;
+            width: 100%;
+            margin: 4px 0 12px 0;
             max-height: 200px;
-            /* smaller images in grid */
+            border-radius: var(--radius-sm);
         }
 
         .feed-container.grid-view .post-media img {
@@ -747,11 +761,12 @@
         }
 
         .post-media {
-            width: calc(100% + 40px);
-            margin: 4px -20px 12px -20px;
-            border-radius: 0;
+            width: 100%;
+            margin: 12px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
             overflow: hidden;
-            background: #000;
+            background: rgba(0, 0, 0, 0.02);
             max-height: 512px;
             display: flex;
             align-items: center;
@@ -762,7 +777,7 @@
             width: 100%;
             height: auto;
             max-height: 512px;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         .post-actions {
@@ -1057,12 +1072,12 @@
 
         /* Post Media */
         .post-media {
-            margin: 16px -32px;
-            background: #f8fafc;
+            margin: 16px 0;
+            background: rgba(0, 0, 0, 0.02);
             display: flex;
             justify-content: center;
-            border-top: 1px solid var(--border-glass);
-            border-bottom: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
             max-height: 512px;
             overflow: hidden;
         }
@@ -1105,6 +1120,287 @@
             line-height: 1;
             backdrop-filter: blur(4px);
         }
+
+        /* Dashboard & Admin Components (ISO 9241-12 & Modern Style) */
+        .page-header {
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 32px;
+            background: var(--accent-gradient);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(40px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .pulse-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .pulse-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .stat-footer {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .pulse-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .pulse-table th {
+            padding: 20px 24px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .pulse-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-glass);
+            vertical-align: middle;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.primary {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .badge.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-pill {
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 700;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-pill.primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        .btn-pill.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-pill.danger {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-pill.danger:hover {
+            transform: translateY(-1px);
+            background: #dc2626;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-pill.ghost {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .btn-pill.ghost:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        .data-list-item {
+            padding: 24px;
+            border-radius: var(--radius-md);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-list-item:hover {
+            transform: translateX(8px);
+            border-color: var(--accent-primary);
+        }
+
+        /* Premium Modal System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: var(--transition);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-lg);
+            width: 95%;
+            max-width: 420px;
+            margin: 15px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -1120,19 +1416,24 @@
             </a>
         </div>
 
-        <form action="{{ route('home') }}" method="GET" class="nav-center" style="flex: 1; max-width: 600px; padding: 0 40px; position: relative;">
+        <form action="{{ route('home') }}" method="GET" class="nav-center"
+            style="flex: 1; max-width: 600px; padding: 0 40px; position: relative;">
             <div class="search-container" style="width: 100%; position: relative; display: flex; align-items: center;">
-                <svg style="position: absolute; left: 16px; color: var(--text-muted); pointer-events: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg style="position: absolute; left: 16px; color: var(--text-muted); pointer-events: none;" width="18"
+                    height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Pulse for posts, ideas, or results..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Search Pulse for posts, ideas, or results..."
                     style="width: 100%; height: 44px; padding: 0 16px 0 48px; background: rgba(0,0,0,0.03); border: 1.5px solid var(--border-glass); border-radius: var(--radius-pill); font-size: 14px; font-weight: 500; color: var(--text-primary); transition: all 0.3s ease; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);"
                     onfocus="this.style.background='white'; this.style.borderColor='var(--accent-primary)'; this.style.boxShadow='0 0 0 4px rgba(124, 58, 237, 0.1)';"
-                    onblur="this.style.background='rgba(0,0,0,0.03)'; this.style.borderColor='var(--border-glass)'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.02)';"
-                >
+                    onblur="this.style.background='rgba(0,0,0,0.03)'; this.style.borderColor='var(--border-glass)'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.02)';">
                 @if(request('search'))
-                    <a href="{{ route('home') }}" style="position: absolute; right: 12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='rgba(0,0,0,0.05)'" title="Clear search">
+                    <a href="{{ route('home') }}"
+                        style="position: absolute; right: 12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='rgba(0,0,0,0.1)'"
+                        onmouseout="this.style.background='rgba(0,0,0,0.05)'" title="Clear search">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1142,13 +1443,13 @@
             </div>
         </form>
 
-            <style>
-                .explore-pill:hover {
-                    background: var(--bg-glass-hover) !important;
-                    color: var(--text-primary) !important;
-                    transform: translateY(-1px);
-                }
-            </style>
+        <style>
+            .explore-pill:hover {
+                background: var(--bg-glass-hover) !important;
+                color: var(--text-primary) !important;
+                transform: translateY(-1px);
+            }
+        </style>
         </div>
 
         <div class="nav-right">
@@ -1168,14 +1469,70 @@
         </div>
     </nav>
 
-    @if(session('success'))
-        <div style="position: fixed; top: 80px; right: 20px; background: #22c55e; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 2000; display: flex; align-items: center; gap: 10px; animation: pulseSlideIn 0.3s ease-out;"
-            id="flash-message">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            {{ session('success') }}
+    @if(session('success') || session('error'))
+        <div class="toast-notification {{ session('error') ? 'error' : 'success' }}" id="toast-message">
+            <div class="toast-icon">
+                @if(session('success'))
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                @else
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                @endif
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">Sys. Notification</div>
+                <div class="toast-desc">{{ session('success') ?? session('error') }}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()" title="Dismiss">&times;</button>
         </div>
+        <style>
+            .toast-notification {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                border-radius: 16px;
+                padding: 16px 20px;
+                box-shadow: 0 25px 50px -12px rgba(124, 58, 237, 0.25);
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                z-index: 9999;
+                width: max-content;
+                max-width: 380px;
+                animation: toastSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+            .toast-notification.success .toast-icon { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+            .toast-notification.error .toast-icon { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+            .toast-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+            .toast-content { display: flex; flex-direction: column; gap: 4px; }
+            .toast-title { font-weight: 800; font-size: 13px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
+            .toast-desc { font-weight: 600; font-size: 15px; color: var(--text-primary); line-height: 1.4; }
+            .toast-close { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; padding: 0 4px; margin-left: 12px; transition: color 0.2s; align-self: flex-start; line-height: 1; }
+            .toast-close:hover { color: var(--accent-primary); }
+            
+            @keyframes toastSlideUp {
+                from { opacity: 0; transform: translateY(100px) scale(0.9); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes toastFadeOut {
+                to { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            }
+        </style>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('toast-message');
+                if(toast) {
+                    toast.style.animation = 'toastFadeOut 0.4s ease forwards';
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, 6000);
+        </script>
     @endif
 
     @auth
@@ -1189,9 +1546,9 @@
                 </svg>
                 You have {{ $unreadCount }} new message{{ $unreadCount > 1 ? 's' : '' }}!
                 @if(Auth::user()->role === 'user')
-                <a href="{{ route('messages.index') }}"
-                    style="padding: 10px 24px; background: rgba(0,0,0,0.05); color: var(--text-primary); border-radius: var(--radius-pill); font-size: 14px; font-weight: 700; text-decoration: none;"
-                    onclick="event.stopPropagation()">View my messages</a>
+                    <a href="{{ route('messages.index') }}"
+                        style="padding: 10px 24px; background: rgba(0,0,0,0.05); color: var(--text-primary); border-radius: var(--radius-pill); font-size: 14px; font-weight: 700; text-decoration: none;"
+                        onclick="event.stopPropagation()">View my messages</a>
                 @endif
             </div>
             <style>
@@ -1247,57 +1604,96 @@
                     </a>
 
                     @auth
-                    <a href="{{ route('messages.index') }}" class="nav-item {{ request()->routeIs('messages.*') ? 'active' : '' }}" style="position: relative;">
-                        <div class="nav-icon"><svg viewBox="0 0 24 24">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg></div>
-                        <span class="nav-text">Messages</span>
-                        @if(isset($unreadCount) && $unreadCount > 0)
-                            <span style="position: absolute; left: 32px; top: 8px; width: 10px; height: 10px; background: #ef4444; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);"></span>
-                        @endif
-                    </a>
-                    <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
-                        <div class="nav-icon"><svg viewBox="0 0 24 24">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg></div>
-                        <span class="nav-text">Profile</span>
-                    </a>
+                        <a href="{{ route('messages.index') }}"
+                            class="nav-item {{ request()->routeIs('messages.*') ? 'active' : '' }}"
+                            style="position: relative;">
+                            <div class="nav-icon"><svg viewBox="0 0 24 24">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg></div>
+                            <span class="nav-text">Messages</span>
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span
+                                    style="position: absolute; left: 32px; top: 8px; width: 10px; height: 10px; background: #ef4444; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);"></span>
+                            @endif
+                        </a>
+                        <a href="{{ route('profile.edit') }}"
+                            class="nav-item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                            <div class="nav-icon"><svg viewBox="0 0 24 24">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg></div>
+                            <span class="nav-text">Profile</span>
+                        </a>
                     @endauth
                 </div>
 
                 @auth
                     @if(Auth::user()->role === 'admin' || Auth::user()->role === 'moderator')
-                    <div class="nav-group" style="margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border-glass);">
-                        <div class="nav-title" style="color: var(--accent-primary); font-weight: 800; letter-spacing: 0.5px; margin-bottom: 16px;">STAFF MANAGEMENT</div>
-                        
-                        <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" style="background: rgba(124, 58, 237, 0.03); margin-bottom: 8px; border: 1px solid rgba(124, 58, 237, 0.1);">
-                            <div class="nav-icon" style="color: var(--accent-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                            <span class="nav-text" style="font-weight: 700;">Admin Dashboard</span>
-                        </a>
+                        <div class="nav-group"
+                            style="margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border-glass);">
+                            <div class="nav-title"
+                                style="color: var(--accent-primary); font-weight: 800; letter-spacing: 0.5px; margin-bottom: 16px;">
+                                STAFF MANAGEMENT</div>
 
-                        <a href="{{ route('admin.approvals') }}" class="nav-item {{ request()->routeIs('admin.approvals') ? 'active' : '' }}">
-                            <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-                            <span class="nav-text">Approvals</span>
-                        </a>
+                            <a href="{{ route('dashboard') }}"
+                                class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                                style="background: rgba(124, 58, 237, 0.03); margin-bottom: 8px; border: 1px solid rgba(124, 58, 237, 0.1);">
+                                <div class="nav-icon" style="color: var(--accent-primary);"><svg width="18" height="18"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg></div>
+                                <span class="nav-text" style="font-weight: 700;">Admin Dashboard</span>
+                            </a>
 
-                        <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
-                            <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
-                            <span class="nav-text">Reports</span>
-                        </a>
+                            <a href="{{ route('admin.approvals') }}"
+                                class="nav-item {{ request()->routeIs('admin.approvals') ? 'active' : '' }}">
+                                <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2.5">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg></div>
+                                <span class="nav-text">Approvals</span>
+                            </a>
 
-                        @if(Auth::user()->role === 'admin')
-                        <a href="{{ route('categories.index') }}" class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
-                            <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-                            <span class="nav-text">Categories</span>
-                        </a>
+                            <a href="{{ route('admin.reports') }}"
+                                class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                                <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2.5">
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                        </path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg></div>
+                                <span class="nav-text">Reports</span>
+                            </a>
 
-                        <a href="{{ route('admin.team') }}" class="nav-item {{ request()->routeIs('admin.team') ? 'active' : '' }}">
-                            <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-                            <span class="nav-text">Team Hub</span>
-                        </a>
-                        @endif
-                    </div>
+                            @if(Auth::user()->role === 'admin')
+                                <a href="{{ route('categories.index') }}"
+                                    class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                        </svg></div>
+                                    <span class="nav-text">Categories</span>
+                                </a>
+
+                                <a href="{{ route('admin.team') }}"
+                                    class="nav-item {{ request()->routeIs('admin.team') ? 'active' : '' }}">
+                                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg></div>
+                                    <span class="nav-text">Team Hub</span>
+                                </a>
+                            @endif
+                        </div>
                     @endif
                 @endauth
 
@@ -1305,9 +1701,12 @@
                     <div class="nav-title">Explore</div>
                     @foreach($nav_categories as $cat)
                         <a href="{{ route('home', ['category' => $cat->id]) }}"
-                            class="nav-item {{ request('category') == $cat->id ? 'active' : '' }}">
+                            class="nav-item {{ (is_object(request('category')) ? request('category')->id : request('category')) == $cat->id ? 'active' : '' }}">
                             <div class="nav-icon" style="color: var(--accent-primary); opacity: 0.8;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                </svg>
                             </div>
                             <span class="nav-text">{{ $cat->label }}</span>
                         </a>
@@ -1351,58 +1750,154 @@
     @auth
         <!-- Create Post Modal -->
         <div class="modal-overlay" id="modalPost">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3 class="modal-title">Create a Post</h3>
-                    <span class="modal-close" onclick="closeModal('modalPost')">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </span>
+            <div class="modal-card"
+                style="background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 0; overflow: hidden;">
+                <div class="modal-header"
+                    style="background: rgba(124, 58, 237, 0.02); border-bottom: 1px solid rgba(124, 58, 237, 0.05); padding: 16px 24px;">
+                    <h2 class="modal-title"
+                        style="font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; font-size: 16px;">
+                        Create a New Post</h2>
+                    <button onclick="closeModal('modalPost')"
+                        style="background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: color 0.2s;"
+                        onmouseover="this.style.color='#ef4444'"
+                        onmouseout="this.style.color='var(--text-muted)'">&times;</button>
                 </div>
                 <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div style="margin-bottom: 16px;">
-                        <div style="margin-bottom: 12px;">
+                    <div style="padding: 20px 24px;">
+                        <!-- Category Selection -->
+                        <div style="margin-bottom: 16px;">
                             <label
-                                style="display: block; font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;">Select
-                                Category</label>
-                            <select name="category_id" required
-                                style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; background: white;">
-                                @foreach($nav_categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->label }}</option>
-                                @endforeach
-                            </select>
+                                style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 6px; letter-spacing: 0.5px;">Select
+                                Community Hub</label>
+                            <div class="custom-select-wrapper" style="position: relative;">
+                                @php $firstCat = $nav_categories->first(); @endphp
+                                <input type="hidden" name="category_id" id="category_id_input"
+                                    value="{{ $firstCat ? $firstCat->id : '' }}">
+
+                                <div id="custom-select-trigger" onclick="toggleCustomSelect()"
+                                    style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid rgba(124, 58, 237, 0.15); background: rgba(248, 250, 252, 0.8); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+                                    <span id="custom-select-text"
+                                        style="color: var(--text-primary); font-weight: 800; font-size: 14px;">{{ $firstCat ? $firstCat->label : 'Select Community...' }}</span>
+                                    <svg id="custom-select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="var(--accent-primary)" stroke-width="2.5"
+                                        style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+
+                                <div id="custom-select-options"
+                                    style="position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #ffffff; border: 1px solid rgba(124, 58, 237, 0.1); border-radius: 12px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.15); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 50; overflow: hidden; max-height: 220px; overflow-y: auto;">
+                                    @foreach($nav_categories as $cat)
+                                        <div class="custom-option"
+                                            onclick="selectCategory('{{ $cat->id }}', '{{ $cat->label }}')"
+                                            style="padding: 12px 16px; font-weight: 700; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); border-bottom: 1px solid rgba(0,0,0,0.02);"
+                                            onmouseover="this.style.background='rgba(124, 58, 237, 0.05)'; this.style.color='var(--accent-primary)'; this.style.paddingLeft='24px'"
+                                            onmouseout="this.style.background='transparent'; this.style.color='var(--text-primary)'; this.style.paddingLeft='16px'">
+                                            {{ $cat->label }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <script>
+                                function toggleCustomSelect() {
+                                    const options = document.getElementById('custom-select-options');
+                                    const trigger = document.getElementById('custom-select-trigger');
+                                    const icon = document.getElementById('custom-select-icon');
+
+                                    if (options.style.visibility === 'hidden') {
+                                        options.style.visibility = 'visible';
+                                        options.style.opacity = '1';
+                                        options.style.transform = 'translateY(0)';
+                                        trigger.style.borderColor = 'var(--accent-primary)';
+                                        trigger.style.background = '#ffffff';
+                                        trigger.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.1)';
+                                        icon.style.transform = 'rotate(180deg)';
+                                    } else {
+                                        closeCustomSelect();
+                                    }
+                                }
+
+                                function selectCategory(id, label) {
+                                    document.getElementById('category_id_input').value = id;
+                                    const textSpan = document.getElementById('custom-select-text');
+                                    textSpan.innerText = label;
+                                    closeCustomSelect();
+                                }
+
+                                function closeCustomSelect() {
+                                    const options = document.getElementById('custom-select-options');
+                                    const trigger = document.getElementById('custom-select-trigger');
+                                    const icon = document.getElementById('custom-select-icon');
+
+                                    if (options && options.style.visibility === 'visible') {
+                                        options.style.visibility = 'hidden';
+                                        options.style.opacity = '0';
+                                        options.style.transform = 'translateY(-10px)';
+                                        trigger.style.borderColor = 'rgba(124, 58, 237, 0.15)';
+                                        trigger.style.background = 'rgba(248, 250, 252, 0.8)';
+                                        trigger.style.boxShadow = 'none';
+                                        icon.style.transform = 'rotate(0deg)';
+                                    }
+                                }
+
+                                document.addEventListener('click', function (e) {
+                                    const wrapper = document.querySelector('.custom-select-wrapper');
+                                    if (wrapper && !wrapper.contains(e.target)) {
+                                        closeCustomSelect();
+                                    }
+                                });
+                            </script>
                         </div>
 
-                        <input type="text" name="title" placeholder="Post Title" required
-                            style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; font-size: 16px; font-weight: 600;">
+                        <!-- Post Content Group -->
+                        <div
+                            style="background: rgba(248, 250, 252, 0.5); border: 1.5px solid rgba(124, 58, 237, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 16px;">
+                            <input type="text" name="title" placeholder="Post Title" required
+                                style="width: 100%; padding: 10px; border: none; background: transparent; font-size: 15px; font-weight: 800; color: var(--text-primary); outline: none; border-bottom: 1.5px solid rgba(124, 58, 237, 0.05); margin-bottom: 6px;"
+                                onfocus="this.parentElement.style.borderColor='var(--accent-primary)'; this.parentElement.style.background='#ffffff'; this.parentElement.style.boxShadow='0 10px 25px -5px rgba(124, 58, 237, 0.08)'"
+                                onblur="this.parentElement.style.borderColor='rgba(124, 58, 237, 0.1)'; this.parentElement.style.background='rgba(248, 250, 252, 0.5)'; this.parentElement.style.boxShadow='none'">
 
-                        <textarea name="content" placeholder="Write something..." required
-                            style="width: 100%; height: 120px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: none; font-size: 15px; margin-bottom: 12px;"></textarea>
+                            <textarea name="content" placeholder="Share your thoughts with the community..." required
+                                style="width: 100%; height: 110px; padding: 10px; border: none; background: transparent; font-size: 14px; font-weight: 500; color: var(--text-primary); outline: none; resize: none; line-height: 1.5;"></textarea>
+                        </div>
 
-                        <div style="border: 2px dashed #e2e8f0; border-radius: 8px; padding: 20px; text-align: center; color: var(--text-muted); cursor: pointer;"
-                            onclick="document.getElementById('modal-file').click()">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" style="margin-bottom: 8px;">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <p style="font-size: 13px;">Add Media (Image/Video)</p>
+                        <!-- Media Dropzone -->
+                        <div class="media-dropzone"
+                            style="border: 2px dashed rgba(124, 58, 237, 0.2); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(124, 58, 237, 0.01);"
+                            onclick="document.getElementById('modal-file').click()"
+                            onmouseover="this.style.background='rgba(124, 58, 237, 0.04)'; this.style.borderColor='var(--accent-primary)'"
+                            onmouseout="this.style.background='rgba(124, 58, 237, 0.01)'; this.style.borderColor='rgba(124, 58, 237, 0.2)'">
+                            <div
+                                style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
+                                    stroke-width="2.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </div>
+                            <p style="font-size: 12px; font-weight: 800; color: var(--accent-primary); margin-bottom: 2px;">
+                                Add Media</p>
+                            <p style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Images or video</p>
                             <input type="file" id="modal-file" name="media" style="display: none;"
                                 onchange="previewImage(this)">
                         </div>
 
-                        <div id="image-preview-container">
-                            <img id="image-preview" src="">
-                            <div class="remove-preview" onclick="removePreview()">×</div>
+                        <div id="image-preview-container" style="margin-top: 12px;">
+                            <img id="image-preview" src=""
+                                style="width: 100%; border-radius: 10px; display: none; object-fit: cover; max-height: 180px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                            <div class="remove-preview" onclick="removePreview()" style="display: none;">&times;</div>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content: flex-end; gap: 12px;">
-                        <button type="button" class="btn btn-outline" onclick="closeModal('modalPost')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" style="padding: 10px 30px;">Post Now</button>
+
+                    <div class="modal-footer"
+                        style="padding: 16px 24px; background: rgba(248, 250, 252, 0.8); border-top: 1px solid rgba(124, 58, 237, 0.05); display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn-pill ghost" onclick="closeModal('modalPost')"
+                            style="padding: 10px 20px; font-size: 13px;">Discard</button>
+                        <button type="submit" class="btn-pill primary" style="padding: 10px 24px; font-size: 13px;">Post to
+                            Community</button>
                     </div>
                 </form>
             </div>

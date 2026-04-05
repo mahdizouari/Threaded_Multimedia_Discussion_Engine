@@ -42,6 +42,22 @@ class UserRoleSeeder extends Seeder
             'last_name' => 'User',
             'interests' => ['community','support'],
         ]);
+
+        // Standard User
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'user@example.com',
+            'username' => 'johndoe',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+        ]);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'interests' => ['Technology','Gaming','News'],
+        ]);
     }
 }
 

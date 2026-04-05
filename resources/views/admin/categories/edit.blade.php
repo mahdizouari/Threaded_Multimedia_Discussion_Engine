@@ -30,16 +30,6 @@
                 @enderror
             </div>
 
-            <div class="form-group" style="margin-bottom: 32px;">
-                <label for="description" style="display: block; font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Description (Optional)</label>
-                <textarea name="description" id="description" rows="4"
-                    style="width: 100%; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); color: var(--text-primary); font-size: 15px; outline: none; transition: var(--transition); resize: none;"
-                    onfocus="this.style.borderColor='var(--accent-primary)'; this.style.boxShadow='0 0 0 4px rgba(124, 58, 237, 0.1)';" 
-                    onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='none';">{{ old('description', $category->description) }}</textarea>
-                @error('description')
-                    <span style="color: #ef4444; font-size: 12px; margin-top: 6px; display: block;">{{ $message }}</span>
-                @enderror
-            </div>
 
             <div style="display: flex; gap: 12px;">
                 <button type="submit" class="btn-primary" style="flex: 2; padding: 14px; border-radius: var(--radius-pill); background: var(--accent-gradient); color: white; font-weight: 700; border: none; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);">

@@ -15,11 +15,11 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['label' => 'Technology', 'description' => 'Latest in gadgets, software, and AI'],
-            ['label' => 'Entertainment', 'description' => 'Movies, music, and celebrity news'],
-            ['label' => 'News', 'description' => 'Breaking news from around the world'],
-            ['label' => 'Gaming', 'description' => 'Video games, esports, and industry updates'],
-            ['label' => 'Science', 'description' => 'Discoveries, space, and environment'],
+            ['label' => 'Technology'],
+            ['label' => 'Entertainment'],
+            ['label' => 'News'],
+            ['label' => 'Gaming'],
+            ['label' => 'Science'],
         ];
 
         foreach ($categories as $category) {

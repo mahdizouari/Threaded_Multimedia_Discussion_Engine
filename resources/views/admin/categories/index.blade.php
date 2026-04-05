@@ -3,81 +3,218 @@
 @section('title', 'Manage Categories — Pulse')
 
 @section('content')
-<div class="categories-container" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
-    
-    <div class="glass-panel" style="padding: 32px; border-radius: var(--radius-lg); margin-bottom: 32px; background: var(--accent-gradient); color: white; box-shadow: var(--shadow-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">Categories</h1>
-                <p style="opacity: 0.9; font-size: 15px;">Create and manage the communities that power Pulse Multimedia Forum.</p>
+    <div class="categories-container"
+        style="padding: 24px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease;">
+
+        <!-- Premium Header -->
+        <div class="page-header">
+            <div
+                style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px;">Categories
+                        Management</h1>
+                    <p style="opacity: 0.9; font-size: 16px; font-weight: 500;">
+                        Organize the forum by creating and refining community spaces.
+                    </p>
+                </div>
+                <button onclick="openModal('addCategoryModal')" class="btn-pill primary"
+                    style="background: white; color: var(--accent-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: none; padding: 14px 28px; font-size: 14px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        style="margin-right: 8px;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Category
+                </button>
             </div>
-            <a href="{{ route('categories.create') }}" class="btn-create" style="text-decoration: none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                New Category
-            </a>
+        </div>
+
+        <!-- Categories List -->
+        <div class="pulse-card" style="padding: 0; overflow: hidden;">
+            <table class="pulse-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Category Label</th>
+                        <th style="width: 25%;">Slug Identity</th>
+                        <th style="width: 15%;">Discussion Count</th>
+                        <th style="width: 20%; text-align: right;">Management</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($categories as $cat)
+                        <tr>
+                            <td>
+                                <div style="font-weight: 800; color: var(--text-primary); font-size: 16px;">{{ $cat->label }}
+                                </div>
+                            </td>
+                            <td>
+                                <code
+                                    style="background: rgba(0,0,0,0.03); padding: 4px 8px; border-radius: 4px; font-size: 12px; color: var(--text-muted);">/{{ Str::slug($cat->label) }}</code>
+                            </td>
+                            <td>
+                                <span class="badge primary">{{ $cat->posts()->count() }} Posts</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                    <button onclick="openEditModal({{ $cat->id }}, '{{ addslashes($cat->label) }}')"
+                                        class="btn-pill ghost" style="padding: 8px 16px; font-size: 12px;">Edit</button>
+                                    <button onclick="openDeleteModal({{ $cat->id }}, '{{ addslashes($cat->label) }}')"
+                                        class="btn-pill danger"
+                                        style="padding: 8px 16px; font-size: 12px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            @if($categories->hasPages())
+                <div style="padding: 24px; border-top: 1px solid rgba(0,0,0,0.05);">
+                    {{ $categories->links() }}
+                </div>
+            @endif
         </div>
     </div>
 
-    <div class="glass-panel" style="overflow: hidden; border-radius: var(--radius-lg); background: var(--bg-glass); border: 1px solid var(--border-glass);">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-glass);">
-                    <th style="padding: 20px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Label</th>
-                    <th style="padding: 20px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Slug</th>
-                    <th style="padding: 20px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Posts Count</th>
-                    <th style="padding: 20px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($categories as $cat)
-                <tr style="border-bottom: 1px solid var(--border-glass); transition: all 0.2s ease;">
-                    <td style="padding: 16px 24px;">
-                        <div style="font-weight: 800; color: var(--text-primary); font-size: 15px;">{{ $cat->label }}</div>
-                    </td>
-                    <td style="padding: 16px 24px; color: var(--text-muted); font-family: monospace;">{{ Str::slug($cat->label) }}</td>
-                    <td style="padding: 16px 24px;">
-                        <span style="background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 700;">{{ $cat->posts()->count() }}</span>
-                    </td>
-                    <td style="padding: 16px 24px; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-                        <a href="{{ route('categories.edit', $cat->id) }}" class="btn-edit" style="text-decoration: none; font-weight: 700; font-size: 13px; color: var(--accent-primary); padding: 8px 16px; border-radius: var(--radius-sm); transition: all 0.2s ease;">Edit</a>
-                        <form action="{{ route('categories.destroy', $cat->id) }}" method="POST" onsubmit="return confirm('Delete this category? All related posts will be affected.')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn-delete">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        
-        <div style="padding: 20px; display: flex; justify-content: center;">
-            {{ $categories->links() }}
+    <!-- ================= MODALS ================= -->
+
+    <!-- ADD CATEGORY MODAL -->
+    <div id="addCategoryModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Category</h2>
+                <button onclick="closeCurrentModal()"
+                    style="background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer;">&times;</button>
+            </div>
+            <form action="{{ route('categories.store') }}" method="POST">
+                @csrf
+                <div style="padding: 24px 32px;">
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px;">Category
+                            Name</label>
+                        <input type="text" name="label" required placeholder="e.g. Artificial Intelligence"
+                            style="width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); font-weight: 600; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--accent-primary)'"
+                            onblur="this.style.borderColor='rgba(0,0,0,0.1)'">
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">This name will be displayed in
+                        the forum and used to generate the URL slug automatically.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeCurrentModal()" class="btn-pill ghost">Cancel</button>
+                    <button type="submit" class="btn-pill primary">Create Community</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal for adding category removed in favor of separate page -->
-</div>
+    <!-- EDIT CATEGORY MODAL -->
+    <div id="editCategoryModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Category</h2>
+                <button onclick="closeCurrentModal()"
+                    style="background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer;">&times;</button>
+            </div>
+            <form id="editCategoryForm" method="POST">
+                @csrf
+                @method('PATCH')
+                <div style="padding: 24px 32px;">
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px;">Update
+                            Name</label>
+                        <input type="text" name="label" id="edit_label" required
+                            style="width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); font-weight: 600;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeCurrentModal()" class="btn-pill ghost">Cancel</button>
+                    <button type="submit" class="btn-pill primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-<style>
-    .btn-create {
-        background: white; color: var(--accent-primary); border: none; padding: 12px 24px; border-radius: var(--radius-pill);
-        font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;
-        transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .btn-create:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+    <!-- DELETE CATEGORY MODAL -->
+    <div id="deleteCategoryModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h2 class="modal-title" style="color: #ef4444;">Are you sure?</h2>
+                <button onclick="closeCurrentModal()"
+                    style="background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 24px 32px;">
+                <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6;">
+                    You are about to delete <strong id="delete_label_preview" style="color: var(--text-primary);"></strong>.
+                    This action will affect any posts associated with this community.
+                </p>
+            </div>
+            <form id="deleteCategoryForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-footer" style="border-top: none; padding-top: 0;">
+                    <button type="button" onclick="closeCurrentModal()" class="btn-pill ghost">Cancel</button>
+                    <button type="submit" class="btn-pill danger">Yes, Delete Permanently</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    .btn-delete {
-        background: transparent; border: none; color: #ef4444; font-weight: 700; font-size: 13px; cursor: pointer;
-        padding: 8px 16px; transition: all 0.2s ease; border-radius: var(--radius-sm);
-    }
-    .btn-delete:hover { background: rgba(239, 68, 68, 0.1); }
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
 
-    .btn-edit:hover { background: rgba(124, 58, 237, 0.1); }
+        function closeCurrentModal() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            document.body.style.overflow = 'auto';
+        }
 
-    .btn-mod.primary {
-        background: var(--accent-gradient); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-pill);
-        font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s ease;
-    }
-    .btn-mod.primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
-</style>
+        function openEditModal(id, label) {
+            const form = document.getElementById('editCategoryForm');
+            form.action = `/categories/${id}`;
+            document.getElementById('edit_label').value = label;
+            openModal('editCategoryModal');
+        }
+
+        function openDeleteModal(id, label) {
+            const form = document.getElementById('deleteCategoryForm');
+            form.action = `/categories/${id}`;
+            document.getElementById('delete_label_preview').innerText = label;
+            openModal('deleteCategoryModal');
+        }
+
+        // Close on outside click
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeCurrentModal();
+            }
+        }
+    </script>
+
+    <style>
+        /* Premium Table Styling (Aligned with Team Hub) */
+        .pulse-table tr {
+            transition: background 0.2s ease;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .pulse-table tr:hover {
+            background: rgba(0, 0, 0, 0.01) !important;
+        }
+
+        /* Animation Hooks */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
 @endsection
