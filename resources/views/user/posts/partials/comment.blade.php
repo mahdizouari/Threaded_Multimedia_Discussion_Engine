@@ -39,7 +39,7 @@
                         <textarea name="text" class="comment-textarea" style="min-height: 80px; margin-bottom: 8px;">{{ $comment->text }}</textarea>
                         <div style="display: flex; gap: 8px;">
                             <button type="submit" class="btn btn-primary" style="padding: 6px 16px; font-size: 12px;">Save</button>
-                            <button type="button" class="btn-sm" style="background: rgba(0,0,0,0.05); border: none;" onclick="toggleEdit('{{ $comment->id }}')">Cancel</button>
+                            <button type="button" class="btn-pill ghost" style="padding: 6px 14px; font-size: 11px;" onclick="toggleEdit('{{ $comment->id }}')">Cancel</button>
                         </div>
                     </form>
                 </div>
