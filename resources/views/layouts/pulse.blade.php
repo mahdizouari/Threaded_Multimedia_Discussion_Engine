@@ -2570,7 +2570,7 @@
             <!-- Create Post Modal -->
             <div class="modal-overlay" id="modalPost">
                 <div class="modal-card"
-                    style="background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 0; overflow: hidden;">
+                    style="background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 0; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; width: 95%; max-width: 550px; margin: 20px;">
                     <div class="modal-header"
                         style="background: rgba(124, 58, 237, 0.02); border-bottom: 1px solid rgba(124, 58, 237, 0.05); padding: 16px 24px;">
                         <h2 class="modal-title"
@@ -2581,9 +2581,10 @@
                             onmouseover="this.style.color='#ef4444'"
                             onmouseout="this.style.color='var(--text-muted)'">&times;</button>
                     </div>
-                    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" 
+                          style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
                         @csrf
-                        <div style="padding: 20px 24px;">
+                        <div style="padding: 20px 24px; overflow-y: auto; flex: 1;">
                             <!-- Category Selection -->
                             <div style="margin-bottom: 16px;">
                                 <label
