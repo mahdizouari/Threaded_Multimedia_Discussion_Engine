@@ -202,7 +202,15 @@ class ModerationController extends Controller
             ? 'Post rejected. User reached threshold (5/5) and has been AUTO-BLOCKED.' 
             : 'Post rejected (Infraction ' . $user->violations_count . '/5). Author violation counter increased.';
 
-        return redirect()->back()->with('success', $msg);
+        if (request()->ajax() || request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'redirect' => (url()->previous() === route('posts.show', $post)) ? route('home') : null
+            ]);
+        }
+
+        return redirect()->route('home')->with('success', $msg);
     }
 
     public function dismissReport(Post $post)

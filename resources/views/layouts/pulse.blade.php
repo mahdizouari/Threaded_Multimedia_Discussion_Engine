@@ -1921,8 +1921,18 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(res => {
-                showPulseToast('Action successful!', 'success');
-                setTimeout(() => window.location.reload(), 800);
+                if (!res.ok) throw new Error('Request failed');
+                return res.json().catch(() => ({})); // Handle empty or non-JSON responses
+            })
+            .then(data => {
+                showPulseToast(data.message || 'Action successful!', 'success');
+                setTimeout(() => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.reload();
+                    }
+                }, 800);
             })
             .catch(err => {
                 console.error(err);
@@ -2172,7 +2182,13 @@
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
                         @php 
-                            $topUsers = \App\Models\User::withCount('posts')->orderByDesc('posts_count')->take(3)->get(); 
+                            $topUsers = \App\Models\User::where('role', 'user')
+                                ->withCount(['posts' => function ($query) {
+                                    $query->where('is_approved', true);
+                                }])
+                                ->orderByDesc('posts_count')
+                                ->take(3)
+                                ->get(); 
                         @endphp
 
                         @foreach($topUsers as $topUser)
