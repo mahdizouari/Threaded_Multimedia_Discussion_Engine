@@ -112,4 +112,35 @@ class MessageController extends Controller
 
         return back()->with('success', 'Message sent successfully.');
     }
+    public function searchUsersJson(Request $request)
+    {
+        $search = $request->query('q');
+        $userId = Auth::id();
+
+        if (empty($search)) {
+            return response()->json([]);
+        }
+
+        $users = User::where('id', '!=', $userId)
+            ->where(function($q) use ($search) {
+                $q->where('username', 'LIKE', "{$search}%")
+                  ->orWhere('name', 'LIKE', "{$search}%");
+            })
+            ->limit(10)
+            ->get()
+            ->map(function(User $user) {
+                return [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'avatar_url' => $user->profile && $user->profile->avatar_path 
+                        ? asset('storage/' . $user->profile->avatar_path) 
+                        : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . $user->username,
+                    'is_admin' => $user->isAdmin(),
+                    'is_moderator' => $user->isModerator(),
+                    'show_url' => route('messages.show', $user->id)
+                ];
+            });
+
+        return response()->json($users);
+    }
 }

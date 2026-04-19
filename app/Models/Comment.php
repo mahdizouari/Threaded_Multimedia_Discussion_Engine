@@ -16,6 +16,7 @@ class Comment extends Model
         'commented_at',
         'is_reported',
         'reports_count',
+        'report_reason',
     ];
 
     protected $casts = [

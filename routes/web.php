@@ -26,6 +26,7 @@ Route::resource('posts', PostController::class)->only([
     'index',
     'show',
 ]);
+Route::get('/api/posts/search', [PostController::class, 'searchAjax'])->name('api.posts.search');
 Route::get('/u/{user:username}', [UserController::class, 'show'])->name('users.show');
 
 
@@ -67,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Messaging
     Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/api/users/search', [\App\Http\Controllers\MessageController::class, 'searchUsersJson'])->name('api.users.search');
     Route::get('/messages/{user}', [\App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
     Route::get('/api/messages/{user}', [\App\Http\Controllers\MessageController::class, 'fetchMessages'])->name('api.messages.fetch');
     Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');

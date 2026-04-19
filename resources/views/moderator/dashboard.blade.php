@@ -88,7 +88,7 @@
             @endif
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px;">
+        <div class="dashboard-split">
             <!-- Recent Pending Activity -->
             <section>
                 <h2
@@ -322,6 +322,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .dashboard-split {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-split {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 @endsection

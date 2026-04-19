@@ -31,6 +31,9 @@ class Post extends Model
         'is_reported',
         'reports_count',
         'image_path',
+        'is_approval_notified',
+        'is_report_notified',
+        'report_reason',
     ];
 
     protected $casts = [
@@ -38,6 +41,8 @@ class Post extends Model
         'is_approved'  => 'boolean',
         'is_reported'  => 'boolean',
         'reports_count' => 'integer',
+        'is_approval_notified' => 'boolean',
+        'is_report_notified' => 'boolean',
     ];
 
     public function user()

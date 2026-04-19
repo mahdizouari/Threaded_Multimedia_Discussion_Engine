@@ -47,13 +47,13 @@
                 @forelse($reportedPosts as $post)
                     @php
                         $severity = 'low';
-                        $color = '#eab308';
+                        $color = '#f87171'; // light red — low severity posts still red
                         if ($post->reports_count >= 5) {
                             $severity = 'critical';
-                            $color = '#ef4444';
+                            $color = '#ef4444'; // bright red
                         } elseif ($post->reports_count >= 3) {
                             $severity = 'high';
-                            $color = '#f97316';
+                            $color = '#f97316'; // orange-red
                         }
                     @endphp
                     <div class="data-list-item"
@@ -64,6 +64,27 @@
                                     style="font-size: 10px; color: {{ $color }}; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">
                                     {{ $severity }} SEVERITY ({{ $post->reports_count }} FLAGS)
                                 </div>
+                                @php
+                                    $reasons = [
+                                        'Spam'          => ['svg' => '<path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line>', 'bg' => 'rgba(220,38,38,0.08)', 'border' => '#dc262622', 'color' => '#dc2626'],
+                                        'Harassment'    => ['svg' => '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>', 'bg' => 'rgba(217,119,6,0.08)', 'border' => '#d9770622', 'color' => '#b45309'],
+                                        'Inappropriate' => ['svg' => '<circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>', 'bg' => 'rgba(124,58,237,0.08)', 'border' => '#7c3aed22', 'color' => '#7c3aed'],
+                                        'Other'         => ['svg' => '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>', 'bg' => 'rgba(71,85,105,0.08)', 'border' => '#47556922', 'color' => '#475569'],
+                                    ];
+                                    $r = $post->report_reason ? ($reasons[$post->report_reason] ?? $reasons['Other']) : null;
+                                    $reasonLabel = $post->report_reason ?? null;
+                                @endphp
+                                @if($r)
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: {{ $r['bg'] }}; color: {{ $r['color'] }}; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid {{ $r['border'] }}; white-space: nowrap;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">{!! $r['svg'] !!}</svg>
+                                    {{ $reasonLabel }}
+                                </span>
+                                @else
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(148,163,184,0.08); color: #94a3b8; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(148,163,184,0.2); white-space: nowrap;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                    Unspecified
+                                </span>
+                                @endif
                                 @if($post->updated_at->diffInHours() < 24)
                                     <span class="badge"
                                         style="background: rgba(0,0,0,0.05); color: var(--text-muted); font-size: 9px; padding: 2px 8px; border: none;">Recently
@@ -145,9 +166,33 @@
                     @endphp
                     <div class="data-list-item" style="border-left: 6px solid {{ $cColor }};">
                         <div style="flex: 1;">
-                            <div
-                                style="font-size: 9px; color: {{ $cColor }}; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">
-                                {{ $cSeverity }} Severity ({{ $comment->reports_count }} Reports)</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div
+                                    style="font-size: 9px; color: {{ $cColor }}; font-weight: 900; text-transform: uppercase;">
+                                    {{ $cSeverity }} Severity ({{ $comment->reports_count }} Reports)
+                                </div>
+                                @php
+                                    $reasons = [
+                                        'Spam'          => ['svg' => '<path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line>', 'bg' => 'rgba(220,38,38,0.08)', 'border' => '#dc262622', 'color' => '#dc2626'],
+                                        'Harassment'    => ['svg' => '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>', 'bg' => 'rgba(217,119,6,0.08)', 'border' => '#d9770622', 'color' => '#b45309'],
+                                        'Inappropriate' => ['svg' => '<circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>', 'bg' => 'rgba(124,58,237,0.08)', 'border' => '#7c3aed22', 'color' => '#7c3aed'],
+                                        'Other'         => ['svg' => '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>', 'bg' => 'rgba(71,85,105,0.08)', 'border' => '#47556922', 'color' => '#475569'],
+                                    ];
+                                    $cr = $comment->report_reason ? ($reasons[$comment->report_reason] ?? $reasons['Other']) : null;
+                                    $cReasonLabel = $comment->report_reason ?? null;
+                                @endphp
+                                @if($cr)
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: {{ $cr['bg'] }}; color: {{ $cr['color'] }}; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid {{ $cr['border'] }}; white-space: nowrap;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">{!! $cr['svg'] !!}</svg>
+                                    {{ $cReasonLabel }}
+                                </span>
+                                @else
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(148,163,184,0.08); color: #94a3b8; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(148,163,184,0.2); white-space: nowrap;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                    Unspecified
+                                </span>
+                                @endif
+                            </div>
                             <p
                                 style="font-style: italic; color: var(--text-primary); font-size: 15px; margin-bottom: 10px; line-height: 1.5;">
                                 "{{ Str::limit($comment->text, 150) }}"</p>
@@ -344,7 +389,7 @@
 
     <style>
         .data-list-item {
-                background: var(--bg-glass);
+            background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             padding: 24px;
             border-radius: var(--radius-md);
@@ -352,32 +397,53 @@
             justify-content: space-between;
             align-items: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+        }
 
-            .data-list-item:hover {
-                transform: translateX(8px);
+        .data-list-item:hover {
+            transform: translateX(8px);
             box-shadow: var(--shadow-md);
             background: white;
+        }
+
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
 
-            @keyframes fadeInRow {
-                from {opacity: 0; transform: translateY(10px); }
-            to {opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            .btn-pill {
-                padding: 8px 16px;
+        .btn-pill {
+            padding: 8px 16px;
             border-radius: var(--radius-pill);
             font-size: 12px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.2s ease;
             border: none;
-            }
+        }
 
-            .btn-pill.ghost {background: rgba(0,0,0,0.05); color: var(--text-primary); }
-            .btn-pill.ghost:hover {background: rgba(0,0,0,0.1); }
-            .btn-pill.danger {background: #ef4444; color: white; }
-            .btn-pill.danger:hover {background: #dc2626; transform: scale(1.05); }
-        </style>
+        .btn-pill.ghost {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        .btn-pill.ghost:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-pill.danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-pill.danger:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+    </style>
 @endsection

@@ -119,12 +119,15 @@
             height: 40px;
             border-radius: 50%;
             transition: var(--transition);
+            position: relative;
+            cursor: pointer;
         }
 
         .menu-btn:hover {
             background: var(--bg-glass-hover);
             color: var(--text-primary);
         }
+
 
         .logo {
             display: flex;
@@ -272,65 +275,6 @@
             overflow: hidden;
         }
 
-        .sidebar-toggle {
-            position: absolute;
-            left: 100%;
-            top: 24px;
-            width: 34px;
-            height: 34px;
-            transform: translateX(-50%);
-            background: white;
-            border: 1px solid var(--border-glass);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-            color: var(--text-secondary);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 110;
-        }
-
-        .sidebar.collapsed .sidebar-toggle {
-            transform: translateX(0) rotate(180deg);
-            border-radius: 0 12px 12px 0;
-            border-left: transparent;
-        }
-
-        .sidebar.collapsed .sidebar-toggle::after {
-            display: none !important;
-        }
-
-        .sidebar-toggle:hover {
-            color: var(--accent-primary);
-            background: #f8fafc;
-        }
-
-        .sidebar-toggle::after {
-            content: "Collapse Sidebar";
-            position: absolute;
-            left: 40px;
-            top: 50%;
-            transform: translateY(-50%) scale(0.9);
-            background: #1a1a1b;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .sidebar-toggle:hover::after {
-            opacity: 1;
-            transform: translateY(-50%) scale(1);
-        }
-
         .nav-group {
             margin-bottom: 24px;
         }
@@ -384,6 +328,37 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            position: relative;
+        }
+
+        @keyframes navIconPing {
+            0% { transform: scale(1); opacity: 0.8; }
+            70% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .nav-icon-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg-glass);
+            z-index: 2;
+        }
+
+        .nav-icon-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: 50%;
+            animation: navIconPing 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
 
         .nav-icon svg {
@@ -412,6 +387,10 @@
             min-width: 0;
             /* Critical for preventing flex blowout */
             transition: max-width 0.4s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            max-width: 1330px;
         }
 
         /* Trending section */
@@ -1409,6 +1388,16 @@
             }
         }
 
+        @keyframes navBadgePulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+            50% { transform: scale(1.15); box-shadow: 0 0 12px 4px rgba(124, 58, 237, 0.2); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+
+        .nav-badge-dot {
+            animation: navBadgePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -1420,6 +1409,156 @@
                 transform: translateY(0);
             }
         }
+
+        /* --- GLOBAL RESPONSIVE BREAKPOINTS --- */
+        
+        @media (max-width: 1024px) {
+            .layout {
+                flex-direction: column;
+                position: relative;
+            }
+
+            .main-content {
+                max-width: 100%;
+                width: 100%;
+                padding: 24px 16px;
+                order: 1;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                width: 280px;
+                height: calc(100vh - 72px);
+                top: 72px;
+                z-index: 1000;
+                box-shadow: 20px 0 30px rgba(0,0,0,0.1);
+                transition: transform 0.4s ease, left 0.4s ease;
+                margin-left: 0 !important;
+            }
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            .sidebar.collapsed {
+                left: -300px; /* Override standard collapse on mobile */
+            }
+            .sidebar.collapsed .sidebar-inner {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .sidebar-toggle {
+                display: none; /* Hide default toggle handle on tablet/mobile */
+            }
+            .menu-btn {
+                display: flex !important;
+            }
+
+            .right-sidebar {
+                width: 100%;
+                padding: 16px;
+                order: 2;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(48%, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Navbar Mobile */
+            .navbar {
+                padding: 12px 16px;
+            }
+            .nav-left {
+                width: auto;
+                gap: 8px;
+            }
+            .nav-left .logo {
+                font-size: 0; /* Hide text */
+                gap: 0;
+            }
+            .nav-left .logo img {
+                width: 36px;
+                height: 36px;
+            }
+            .nav-right {
+                width: auto;
+                gap: 12px;
+            }
+            .nav-right > span {
+                display: none; /* Hide username texts */
+            }
+            .nav-right .btn-outline {
+                display: none;
+            }
+            .nav-center {
+                padding: 0 12px !important;
+            }
+            .search-container input {
+                padding-left: 36px !important;
+                font-size: 13px !important;
+            }
+            .search-container svg {
+                left: 12px !important;
+            }
+            
+            /* Components */
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 16px;
+            }
+            .data-list-item > div:last-child {
+                margin-left: 0 !important;
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: stretch;
+            }
+            .data-list-item > div:last-child button, .data-list-item > div:last-child a {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+            .pulse-card {
+                padding: 16px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .page-header {
+                padding: 24px;
+            }
+            .page-header h1 {
+                font-size: 24px !important;
+            }
+            .feed-container.grid-view {
+                grid-template-columns: 1fr;
+            }
+            .action-link {
+                gap: 12px;
+            }
+            
+            /* Modals */
+            .modal-card {
+                padding: 20px;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+            .modal-header, .modal-footer {
+                padding: 12px 0;
+            }
+            
+            /* Trending */
+            .trending-carousel-wrapper {
+                padding: 0 !important;
+            }
+            .carousel-btn {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -1428,6 +1567,13 @@
     <!-- Navbar -->
     <nav class="navbar glass-panel">
         <div class="nav-left">
+            <div class="menu-btn" onclick="javascript:document.querySelector('.sidebar').classList.toggle(window.innerWidth <= 1024 ? 'mobile-open' : 'collapsed');">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </div>
             <a href="/" class="logo">
                 <img src="/images/pulse_logo.png" alt="Pulse Logo"
                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0idXJsKCNncmFkKSIvPjxwYXRoIGQ9Ik0xMCAxN0wxNSAyMkwyMiAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZWM0ODk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PC9zdmc+'" />
@@ -1437,17 +1583,19 @@
 
         <form action="{{ route('home') }}" method="GET" class="nav-center"
             style="flex: 1; max-width: 600px; padding: 0 40px; position: relative;">
-            <div class="search-container" style="width: 100%; position: relative; display: flex; align-items: center;">
+            <div class="search-container" id="pulse-infinity-container" style="width: 100%; position: relative; display: flex; align-items: center;">
                 <svg style="position: absolute; left: 16px; color: var(--text-muted); pointer-events: none;" width="18"
                     height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" name="search" value="{{ request('search') }}"
+                <input type="text" name="search" id="pulse-infinity-search" autocomplete="off"
+                    value="{{ request('search') }}"
                     placeholder="Search Pulse for posts, ideas, or results..."
                     style="width: 100%; height: 44px; padding: 0 16px 0 48px; background: rgba(0,0,0,0.03); border: 1.5px solid var(--border-glass); border-radius: var(--radius-pill); font-size: 14px; font-weight: 500; color: var(--text-primary); transition: all 0.3s ease; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);"
                     onfocus="this.style.background='white'; this.style.borderColor='var(--accent-primary)'; this.style.boxShadow='0 0 0 4px rgba(124, 58, 237, 0.1)';"
                     onblur="this.style.background='rgba(0,0,0,0.03)'; this.style.borderColor='var(--border-glass)'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.02)';">
+                
                 @if(request('search'))
                     <a href="{{ route('home') }}"
                         style="position: absolute; right: 12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease;"
@@ -1459,7 +1607,102 @@
                         </svg>
                     </a>
                 @endif
+
+                <!-- Pulse Infinity Search Results Overlay -->
+                <div id="pulse-infinity-results" style="display: none; position: absolute; top: calc(100% + 12px); left: 0; right: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(40px) saturate(180%); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,0.1); z-index: 9999; overflow: hidden; animation: infinitySlideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;">
+                    <!-- Results injected here -->
+                </div>
             </div>
+
+            <style>
+                @keyframes infinitySlideIn {
+                    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                
+                .infinity-result-item {
+                    display: flex; gap: 14px; padding: 14px; border-bottom: 1px solid var(--border-glass); text-decoration: none; color: inherit; transition: all 0.2s ease;
+                }
+                .infinity-result-item:last-child { border-bottom: none; }
+                .infinity-result-item:hover { background: rgba(124, 58, 237, 0.08); transform: translateX(4px); }
+                
+                .infinity-result-image {
+                    width: 50px; height: 50px; border-radius: var(--radius-md); object-fit: cover; background: #eee; flex-shrink: 0;
+                }
+                .infinity-result-title {
+                    font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px;
+                    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+                }
+                .infinity-result-meta {
+                    font-size: 11px; color: var(--text-muted); font-weight: 500;
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('pulse-infinity-search');
+                    const resultsBox = document.getElementById('pulse-infinity-results');
+                    let debounceTimer;
+
+                    searchInput.addEventListener('input', function(e) {
+                        const q = e.target.value.trim();
+                        
+                        if (q.length < 2) {
+                            resultsBox.style.display = 'none';
+                            return;
+                        }
+
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            fetch(`/api/posts/search?q=${encodeURIComponent(q)}`)
+                                .then(res => res.json())
+                                .then(posts => {
+                                    renderInfinityResults(posts);
+                                })
+                                .catch(err => {
+                                    console.error('Search error:', err);
+                                });
+                        }, 300);
+                    });
+
+                    function renderInfinityResults(posts) {
+                        if (posts.length === 0) {
+                            resultsBox.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;">No posts found for your search.</div>';
+                        } else {
+                            resultsBox.innerHTML = posts.map(post => `
+                                <a href="${post.url}" class="infinity-result-item">
+                                    <img src="${post.image}" alt="" class="infinity-result-image" onerror="this.src='https://api.dicebear.com/7.x/shapes/svg?seed=${post.id}'">
+                                    <div style="flex: 1; overflow: hidden;">
+                                        <div class="infinity-result-title">${post.title}</div>
+                                        <div class="infinity-result-meta">
+                                            <span style="color: var(--accent-primary)">p/${post.category}</span> • ${post.author}
+                                        </div>
+                                    </div>
+                                </a>
+                            `).join('') + `
+                                <div style="background: rgba(0,0,0,0.02); padding: 10px; text-align: center;">
+                                    <button type="submit" form="${searchInput.closest('form').id}" style="border: none; background: none; color: var(--text-muted); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;">View all results</button>
+                                </div>
+                            `;
+                        }
+                        resultsBox.style.display = 'block';
+                    }
+
+                    // Close on click outside
+                    document.addEventListener('click', function(e) {
+                        if (!document.getElementById('pulse-infinity-container').contains(e.target)) {
+                            resultsBox.style.display = 'none';
+                        }
+                    });
+
+                    // Re-open on focus if query exists
+                    searchInput.addEventListener('focus', function() {
+                        if (this.value.trim().length >= 2) {
+                            resultsBox.style.display = 'block';
+                        }
+                    });
+                });
+            </script>
         </form>
 
         <style>
@@ -1543,238 +1786,7 @@
         </div>
     </nav>
 
-    {{-- ====================================================
-         PERFECT VISION NOTIFICATION SYSTEM
-         ISO 9241 : Feedback ergonomique & Contrôlabilité
-    ===================================================== --}}
-    <div id="pulse-toast-container" style="position: fixed; top: 24px; right: 24px; z-index: 10001; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
-        @if(session('success') || session('error'))
-            <div class="toast-notification {{ session('error') ? 'error' : 'success' }}" id="toast-message" style="pointer-events: auto;">
-                <div class="toast-icon">
-                    @if(session('success'))
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    @else
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    @endif
-                </div>
-                <div class="toast-content">
-                    <div class="toast-title">Pulse System</div>
-                    <div class="toast-desc">{{ session('success') ?? session('error') }}</div>
-                </div>
-                <button class="toast-close" onclick="pulseClearToast(this.parentElement)" title="Dismiss">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-                <div class="toast-progress"></div>
-            </div>
-        @endif
-    </div>
-
-    <style>
-        .toast-notification {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
-            padding: 18px 24px;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.08),
-                inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            width: max-content;
-            min-width: 340px;
-            max-width: 460px;
-            position: relative;
-            overflow: hidden;
-            animation: pulseToastBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            transition: all 0.4s ease;
-        }
-
-        .toast-notification.success {
-            border-bottom: 3px solid #22c55e;
-            background: rgba(240, 253, 244, 0.45);
-        }
-
-        .toast-notification.error {
-            border-bottom: 3px solid #ef4444;
-            background: rgba(254, 242, 242, 0.45);
-        }
-
-        .toast-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: white;
-        }
-
-        .success .toast-icon {
-            background: var(--accent-gradient);
-            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
-        }
-
-        .error .toast-icon {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
-        }
-
-        .toast-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .toast-title {
-            font-weight: 900;
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .toast-desc {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--text-primary);
-            line-height: 1.4;
-        }
-
-        .toast-close {
-            background: rgba(0, 0, 0, 0.03);
-            border: none;
-            color: var(--text-muted);
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin-left: auto;
-            transition: all 0.3s;
-        }
-
-        .toast-close:hover {
-            background: var(--accent-gradient);
-            color: white;
-            transform: rotate(90deg) scale(1.1);
-        }
-
-        .toast-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .toast-progress::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: currentColor;
-            transform-origin: left;
-            animation: pulseToastTimer 5s linear forwards;
-        }
-
-        .toast-notification:hover .toast-progress::after {
-            animation-play-state: paused;
-        }
-
-        .success .toast-progress::after { color: #22c55e; }
-        .error .toast-progress::after { color: #ef4444; }
-
-        @keyframes pulseToastBounce {
-            0% { opacity: 0; transform: translateX(60px) scale(0.8); }
-            70% { transform: translateX(-10px) scale(1.02); }
-            100% { opacity: 1; transform: translateX(0) scale(1); }
-        }
-
-        @keyframes pulseToastOut {
-            to { opacity: 0; transform: translateX(40px) scale(0.9); filter: blur(10px); }
-        }
-
-        @keyframes pulseToastTimer {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
-        }
-    </style>
-
-    <script>
-        function pulseClearToast(el) {
-            el.style.animation = 'pulseToastOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-            setTimeout(() => el.remove(), 400);
-        }
-
-        // Auto-dismiss with "Pause on Hover" logic
-        document.querySelectorAll('.toast-notification').forEach(toast => {
-            let timeout;
-            let startTime = Date.now();
-            let timeLeft = 5000;
-
-            function startTimer() {
-                timeout = setTimeout(() => pulseClearToast(toast), timeLeft);
-                startTime = Date.now();
-            }
-
-            toast.addEventListener('mouseenter', () => {
-                clearTimeout(timeout);
-                timeLeft -= Date.now() - startTime;
-            });
-
-            toast.addEventListener('mouseleave', () => {
-                if (timeLeft > 0) startTimer();
-            });
-
-            startTimer();
-        });
-    </script>
-
-    @auth
-        @php $unreadCount = auth()->user()->receivedMessages()->unread()->count(); @endphp
-        @if($unreadCount > 0)
-            <div class="message-banner" id="messageBanner"
-                style="background: var(--accent-gradient); color: white; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.3s ease;"
-                onclick="handleBannerClick()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-                You have {{ $unreadCount }} new chat{{ $unreadCount > 1 ? 's' : '' }}!
-                @if(Auth::user()->role === 'user')
-                    <a href="{{ route('messages.index') }}"
-                        style="padding: 10px 24px; background: rgba(0,0,0,0.05); color: var(--text-primary); border-radius: var(--radius-pill); font-size: 14px; font-weight: 700; text-decoration: none;"
-                        onclick="event.stopPropagation()">View my chats</a>
-                @endif
-            </div>
-            <style>
-                @keyframes slideDown {
-                    from {
-                        transform: translateY(-100%);
-                    }
-
-                    to {
-                        transform: translateY(0);
-                    }
-                }
-            </style>
-        @endif
-    @endauth
+    {{-- Legacy Pulse Notification System has been upgraded to a dynamic JS implementation. See the bottom of this file. --}}
 
     <style>
         @keyframes pulseSlideIn {
@@ -1791,18 +1803,190 @@
     </style>
     <script>setTimeout(() => { const msg = document.getElementById('flash-message'); if (msg) { msg.style.opacity = '0'; msg.style.transition = '0.3s'; setTimeout(() => msg.remove(), 300); } }, 4000);</script>
 
+    <!-- Global Modal Manager -->
+    <script>
+        window._pulseCurrentModal = null;
+
+        window.pulseOpenModal = function(id) {
+            if (window._pulseCurrentModal && window._pulseCurrentModal !== id) pulseCloseModal(window._pulseCurrentModal);
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            el.style.display = 'flex';
+            // Wait for display:flex to render
+            setTimeout(() => el.classList.add('active'), 10);
+            window._pulseCurrentModal = id;
+
+            // Close on backdrop click
+            el.onclick = function(e) {
+                if (e.target === el) closeCurrentModal();
+            };
+        };
+
+        window.pulseCloseModal = function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('active');
+            setTimeout(() => {
+                if (!el.classList.contains('active')) el.style.display = 'none';
+                el.onclick = null;
+            }, 310);
+            if (window._pulseCurrentModal === id) window._pulseCurrentModal = null;
+        };
+
+        window.closeCurrentModal = function() {
+            if (window._pulseCurrentModal) {
+                pulseCloseModal(window._pulseCurrentModal);
+            } else {
+                // Fallback: close ANY visible modal
+                document.querySelectorAll('.modal-overlay.active').forEach(m => pulseCloseModal(m.id));
+            }
+        };
+
+        // GLOBAL MODAL TRIGGERS
+        window.openGlobalReportModal = function(type, id, preview) {
+            const form = document.getElementById('globalReportForm');
+            const previewEl = document.getElementById('report_preview');
+            const methodContainer = document.getElementById('report_method_container');
+            
+            // Set dynamic action and method
+            // Posts use PATCH, Comments use POST
+            if (type === 'post') {
+                form.action = `/posts/${id}/report`;
+                methodContainer.innerHTML = '<input type="hidden" name="_method" value="PATCH">';
+            } else {
+                form.action = `/comments/${id}/report`;
+                methodContainer.innerHTML = '';
+            }
+            
+            previewEl.innerText = preview ? `"${preview}"` : "This content";
+            
+            pulseOpenModal('globalReportModal');
+        };
+
+        window.openGlobalConfirmModal = function(actionUrl, message, method = 'DELETE') {
+            const form = document.getElementById('globalConfirmForm');
+            const msgEl = document.getElementById('confirm_message');
+            const methodContainer = document.getElementById('confirm_method_container');
+            
+            form.action = actionUrl;
+            if (message) msgEl.innerText = message;
+            
+            // Handle Laravel method spoofing
+            methodContainer.innerHTML = method !== 'POST' ? `<input type="hidden" name="_method" value="${method}">` : '';
+            
+            pulseOpenModal('globalConfirmModal');
+        };
+
+        // GLOBAL AJAX SUBMISSION HANDLER
+        window.handleGlobalReportSubmit = function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            
+            btn.innerText = 'Sending...';
+            btn.disabled = true;
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                closeCurrentModal();
+                showPulseToast('Thank you! Your report has been submitted.', 'success');
+            })
+            .catch(err => {
+                console.error(err);
+                showPulseToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        };
+
+        window.handleGlobalConfirmSubmit = function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+            
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                showPulseToast('Action successful!', 'success');
+                setTimeout(() => window.location.reload(), 800);
+            })
+            .catch(err => {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerText = 'Error - Try Again';
+                showPulseToast('Error processing request.', 'error');
+            });
+        };
+
+        // Pulse Toast System
+        window.showPulseToast = function(message, type = 'success') {
+            const container = document.getElementById('pulse-toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `pulse-toast ${type}`;
+            toast.style.cssText = `
+                pointer-events: auto;
+                background: var(--bg-glass);
+                backdrop-filter: blur(12px);
+                border: 1px solid var(--border-glass);
+                padding: 14px 24px;
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+                color: var(--text-primary);
+                font-size: 14px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transform: translateX(120%);
+                transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+                border-left: 5px solid ${type === 'success' ? '#22c55e' : '#ef4444'};
+            `;
+
+            const icon = type === 'success' 
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.style.transform = 'translateX(0)';
+            });
+
+            // Remove
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        };
+
+        // Aliases for legacy/inline scripts
+        window.openModal = window.pulseOpenModal;
+        window.closeModal = window.pulseCloseModal;
+    </script>
+
     <!-- App Layout -->
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
 
             <div class="sidebar-inner">
                 <div class="nav-group">
@@ -1820,11 +2004,14 @@
                             style="position: relative;">
                             <div class="nav-icon"><svg viewBox="0 0 24 24">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                </svg></div>
+                                </svg>
+                                @if(isset($unread_messages_count) && $unread_messages_count > 0)
+                                    <div class="nav-icon-badge"></div>
+                                @endif
+                            </div>
                             <span class="nav-text">Chats</span>
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span
-                                    style="position: absolute; left: 32px; top: 8px; width: 10px; height: 10px; background: #ef4444; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);"></span>
+                            @if(isset($unread_messages_count) && $unread_messages_count > 0)
+                                <span class="nav-badge-dot" style="margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; background: var(--accent-primary); color: white; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.45); letter-spacing: 0.3px;">{{ $unread_messages_count > 99 ? '99+' : $unread_messages_count }}</span>
                             @endif
                         </a>
                         <a href="{{ route('profile.edit') }}"
@@ -1860,16 +2047,23 @@
                             </a>
 
                             <a href="{{ route('admin.approvals') }}"
-                                class="nav-item {{ request()->routeIs('admin.approvals') ? 'active' : '' }}">
+                                class="nav-item {{ request()->routeIs('admin.approvals') ? 'active' : '' }}" style="position: relative;">
                                 <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2.5">
                                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                    </svg></div>
+                                    </svg>
+                                    @if(isset($pending_approvals_count) && $pending_approvals_count > 0)
+                                        <div class="nav-icon-badge" style="background: var(--accent-secondary);"></div>
+                                    @endif
+                                </div>
                                 <span class="nav-text">Approvals</span>
+                                @if(isset($pending_approvals_count) && $pending_approvals_count > 0)
+                                    <span class="nav-badge-dot" style="margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; background: var(--accent-gradient); color: white; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.45); letter-spacing: 0.3px;">{{ $pending_approvals_count > 99 ? '99+' : $pending_approvals_count }}</span>
+                                @endif
                             </a>
 
                             <a href="{{ route('admin.reports') }}"
-                                class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                                class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}" style="position: relative;">
                                 <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2.5">
                                         <path
@@ -1877,8 +2071,20 @@
                                         </path>
                                         <line x1="12" y1="9" x2="12" y2="13"></line>
                                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                    </svg></div>
+                                    </svg>
+                                    @if((isset($reported_comments_count) && $reported_comments_count > 0) || (isset($reported_posts_count) && $reported_posts_count > 0))
+                                        <div class="nav-icon-badge"></div>
+                                    @endif
+                                </div>
                                 <span class="nav-text">Reports</span>
+                                <div style="margin-left: auto; display: flex; gap: 4px; align-items: center;">
+                                    @if(isset($reported_comments_count) && $reported_comments_count > 0)
+                                        <span class="nav-badge-dot" title="Reported Comments" style="min-width: 20px; height: 20px; padding: 0 6px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.45); letter-spacing: 0.3px;">{{ $reported_comments_count > 99 ? '99+' : $reported_comments_count }}</span>
+                                    @endif
+                                    @if(isset($reported_posts_count) && $reported_posts_count > 0)
+                                        <span class="nav-badge-dot" title="Reported Posts" style="min-width: 20px; height: 20px; padding: 0 6px; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45); letter-spacing: 0.3px;">{{ $reported_posts_count > 99 ? '99+' : $reported_posts_count }}</span>
+                                    @endif
+                                </div>
                             </a>
 
                             @if(Auth::user()->role === 'admin')
@@ -1965,11 +2171,9 @@
                         </svg>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
-                        @auth
-                            @php $topUsers = \App\Models\User::where('id', '!=', auth()->id())->withCount('posts')->orderByDesc('posts_count')->take(3)->get(); @endphp
-                        @else
-                            @php $topUsers = \App\Models\User::withCount('posts')->orderByDesc('posts_count')->take(3)->get(); @endphp
-                        @endauth
+                        @php 
+                            $topUsers = \App\Models\User::withCount('posts')->orderByDesc('posts_count')->take(3)->get(); 
+                        @endphp
 
                         @foreach($topUsers as $topUser)
                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 12px; transition: background 0.2s;"
@@ -1980,14 +2184,23 @@
                                     <div style="position: relative; flex-shrink: 0;">
                                         <img src="{{ $topUser->profile && $topUser->profile->avatar_path ? asset('storage/' . $topUser->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($topUser->username ?? $topUser->name) }}"
                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                                        <div
-                                            style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border: 2px solid white; border-radius: 50%;">
-                                        </div>
+                                        @if(isset($unread_message_senders) && in_array($topUser->id, $unread_message_senders))
+                                            <div class="nav-badge-dot"
+                                                style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: var(--accent-primary); border: 2px solid white; border-radius: 50%;">
+                                            </div>
+                                        @else
+                                            <div
+                                                style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border: 2px solid white; border-radius: 50%;">
+                                            </div>
+                                        @endif
                                     </div>
                                     <div style="min-width: 0;">
-                                        <div
-                                            style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                            {{ $topUser->username }}</div>
+                                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px;">
+                                            {{ $topUser->username }}
+                                            @if(Auth::check() && Auth::id() === $topUser->id)
+                                                <span style="font-size: 9px; background: var(--accent-gradient); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; line-height: 1;">YOU</span>
+                                            @endif
+                                        </div>
                                         <div style="font-size: 11px; font-weight: 500; color: var(--text-muted);">
                                             {{ $topUser->posts_count }} posts</div>
                                     </div>
@@ -2486,15 +2699,19 @@
                                 </div>
                                 <p style="font-size: 12px; font-weight: 800; color: var(--accent-primary); margin-bottom: 2px;">
                                     Add Media</p>
-                                <p style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Images or video</p>
-                                <input type="file" id="modal-file" name="media" style="display: none;"
+                                <p style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Image only</p>
+                                <input type="file" id="modal-file" name="media" accept="image/*" style="display: none;"
                                     onchange="previewImage(this)">
                             </div>
 
-                            <div id="image-preview-container" style="margin-top: 12px;">
+                            <div id="image-preview-container" style="margin-top: 12px; position: relative; display: none;">
                                 <img id="image-preview" src=""
-                                    style="width: 100%; border-radius: 10px; display: none; object-fit: cover; max-height: 180px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                                <div class="remove-preview" onclick="removePreview()" style="display: none;">&times;</div>
+                                    style="width: 100%; border-radius: 10px; object-fit: cover; max-height: 180px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                                <div class="remove-preview" onclick="removePreview()" 
+                                    style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;"
+                                    onmouseover="this.style.background='rgba(239, 68, 68, 0.9)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">
+                                    &times;
+                                </div>
                             </div>
                         </div>
 
@@ -2509,52 +2726,84 @@
                 </div>
             </div>
 
-            <!-- Report Modal -->
-            <div class="modal-overlay" id="modalReport">
+            <!-- GLOBAL REPORT MODAL -->
+            <div class="modal-overlay" id="globalReportModal">
+                <div class="modal-card" style="max-width: 450px;">
+                    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            Report Content
+                        </h3>
+                        <button type="button" onclick="closeCurrentModal()" style="background:none; border:none; font-size:24px; color:var(--text-muted); cursor:pointer;">&times;</button>
+                    </div>
+                    
+                    <div style="padding: 20px 32px 32px;">
+                        <p id="report_preview" style="font-size: 13px; color: var(--text-muted); padding: 12px; background: rgba(0,0,0,0.02); border-radius: 8px; margin-bottom: 20px; font-style: italic; border-left: 3px solid #f59e0b;"></p>
+                        
+                        <form id="globalReportForm" method="POST" onsubmit="handleGlobalReportSubmit(event)">
+                            @csrf
+                            <div id="report_method_container"></div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Reason for report</div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                                <label class="report-option" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border-glass); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                    <input type="radio" name="reason" value="Spam" checked style="accent-color: var(--accent-primary);">
+                                    <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Spam or Misleading</span>
+                                </label>
+                                <label class="report-option" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border-glass); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                    <input type="radio" name="reason" value="Harassment" style="accent-color: var(--accent-primary);">
+                                    <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Hate Speech or Harassment</span>
+                                </label>
+                                <label class="report-option" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border-glass); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                    <input type="radio" name="reason" value="Inappropriate" style="accent-color: var(--accent-primary);">
+                                    <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Inappropriate Content</span>
+                                </label>
+                                <label class="report-option" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border-glass); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                    <input type="radio" name="reason" value="Other" style="accent-color: var(--accent-primary);">
+                                    <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Other Violation</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-pill primary" style="width: 100%; height: 46px; font-size: 14px;">Submit Report</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GLOBAL CONFIRM MODAL (Destructive Actions) -->
+            <div class="modal-overlay" id="globalConfirmModal">
                 <div class="modal-card" style="max-width: 400px; text-align: center;">
-                    <div class="modal-header" style="justify-content: center;">
-                        <h3 class="modal-title">Report Content</h3>
-                    </div>
-                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Please select the reason for reporting this
-                        post.</p>
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
-                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 10px;">🚩 Spam or misleading</span>
-                        </button>
-                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 10px;">🚫 Hate speech or harassment</span>
-                        </button>
-                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                            <span style="display: flex; align-items: center; gap: 10px;">🔞 Inappropriate media</span>
-                        </button>
-                    </div>
-                    <div style="display:flex; justify-content: center; gap: 12px;">
-                        <button type="button" class="btn-pill ghost" onclick="pulseCloseModal('modalReport')">Cancel</button>
-                        <button type="button" class="btn-pill primary"
-                            onclick="alert('Thank you for reporting!') || pulseCloseModal('modalReport')">Submit Report</button>
+                    <div style="padding: 32px;">
+                        <div style="width: 60px; height: 60px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </div>
+                        <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px;">Are you sure?</h2>
+                        <p id="confirm_message" style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">
+                            This action is permanent and cannot be undone. Do you really want to proceed?
+                        </p>
+                        
+                        <form id="globalConfirmForm" method="POST" onsubmit="handleGlobalConfirmSubmit(event)">
+                            @csrf
+                            <div id="confirm_method_container"></div>
+                            <div style="display: flex; gap: 12px;">
+                                <button type="button" onclick="closeCurrentModal()" class="btn-pill ghost" style="flex: 1;">Cancel</button>
+                                <button type="submit" class="btn-pill danger" style="flex: 1.5;">Confirm & Delete</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         @endif
     @endauth
 
+
     <script>
-        function pulseOpenModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.style.display = 'flex';
-                setTimeout(() => modal.classList.add('active'), 10);
-            }
-        }
-
-        function pulseCloseModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.remove('active');
-                setTimeout(() => modal.style.display = 'none', 300);
-            }
-        }
-
         // Sidebar Toggle Logic
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -2592,13 +2841,8 @@
                 const isGrid = feed.classList.contains('grid-view');
                 localStorage.setItem('feed-layout', isGrid ? 'grid' : 'list');
 
-                if (isGrid) {
-                    iconGrid.style.display = 'none';
-                    iconList.style.display = 'block';
-                } else {
-                    iconGrid.style.display = 'block';
-                    iconList.style.display = 'none';
-                }
+                if (iconGrid) iconGrid.style.display = isGrid ? 'none' : 'block';
+                if (iconList) iconList.style.display = isGrid ? 'block' : 'none';
             }
         }
 
@@ -2610,24 +2854,6 @@
             if (feed) feed.classList.add('grid-view');
             if (iconGrid) iconGrid.style.display = 'none';
             if (iconList) iconList.style.display = 'block';
-        }
-
-        function handleBannerClick() {
-            const banner = document.getElementById('messageBanner');
-            if (banner) {
-                banner.style.opacity = '0';
-                banner.style.transform = 'translateY(-100%)';
-                setTimeout(() => {
-                    banner.remove();
-                    window.location.href = "{{ route('messages.index') }}";
-                }, 300);
-            }
-
-            // Collapse sidebar when checking messages
-            if (sidebar && !sidebar.classList.contains('collapsed')) {
-                sidebar.classList.add('collapsed');
-                localStorage.setItem('sidebar-collapsed', 'true');
-            }
         }
 
         // AJAX Reactions (no page refresh)
@@ -2713,9 +2939,7 @@
 
         // Close modal on escape
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay').forEach(m => closeModal(m.id));
-            }
+            if (e.key === 'Escape') closeCurrentModal();
         });
 
         function previewImage(input) {
@@ -2733,6 +2957,8 @@
 
         function removePreview() {
             document.getElementById('modal-file').value = "";
+            const preview = document.getElementById('image-preview');
+            if(preview) preview.src = "";
             document.getElementById('image-preview-container').style.display = 'none';
         }
         // Close user dropdown on click outside
@@ -2743,6 +2969,81 @@
                     menu.style.display = 'none';
                 }
             }
+        });
+
+
+    </script>
+    <script>
+        // Pulse Vision: Global Reactive Search
+        const pulseNavSearch = document.getElementById('pulse-infinity-search');
+        const pulseTrending = document.getElementById('pulse-trending-section');
+        const pulseFeed = document.getElementById('feed-container');
+        let pulseSearchDebounce;
+
+        if (pulseNavSearch) {
+            // Prevent default submission if on home page to handle via AJAX
+            const searchForm = pulseNavSearch.closest('form');
+            if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
+                searchForm.addEventListener('submit', (e) => e.preventDefault());
+            }
+
+            pulseNavSearch.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                const isHome = window.location.pathname === '/' || window.location.pathname === '/index.php';
+
+                if (!isHome) return; // Only real-time filter on home page
+
+                clearTimeout(pulseSearchDebounce);
+
+                // Handle Trending Section Visibility
+                if (pulseTrending) {
+                    pulseTrending.style.display = query.length > 0 ? 'none' : 'block';
+                    // Trigger carousel sync if showing again
+                    if (query.length === 0 && typeof updateCarousel === 'function') updateCarousel();
+                }
+
+                pulseSearchDebounce = setTimeout(() => {
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('search', query);
+                    
+                    // Keep existing sort/category if present
+                    const url = `/api/posts/search?${params.toString()}`;
+
+                    if (pulseFeed) {
+                        pulseFeed.style.opacity = '0.7';
+                        fetch(url)
+                            .then(res => res.text())
+                            .then(html => {
+                                pulseFeed.innerHTML = html;
+                                pulseFeed.style.opacity = '1';
+                                // Re-initialize any post interactions if needed
+                            })
+                            .catch(err => {
+                                console.error('Global search error:', err);
+                                pulseFeed.style.opacity = '1';
+                            });
+                    }
+                }, 300);
+            });
+        }
+    </script>
+    <!-- Toast Container -->
+    <div id="pulse-toast-container" style="position: fixed; top: 24px; right: 24px; z-index: 10000; pointer-events: none; display: flex; flex-direction: column; gap: 12px;"></div>
+    
+    <script>
+        // Check for Laravel Session messages and display them using the unified Pulse Toast System
+        document.addEventListener("DOMContentLoaded", () => {
+            @if(session('success'))
+                if(window.showPulseToast) window.showPulseToast("{{ addslashes(session('success')) }}", "success");
+            @endif
+            
+            @if(session('error'))
+                if(window.showPulseToast) window.showPulseToast("{{ addslashes(session('error')) }}", "error");
+            @endif
+
+            @if($errors->any())
+                if(window.showPulseToast) window.showPulseToast("{{ addslashes($errors->first()) }}", "error");
+            @endif
         });
     </script>
 </body>

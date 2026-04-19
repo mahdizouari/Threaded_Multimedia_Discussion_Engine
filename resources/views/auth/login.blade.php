@@ -120,11 +120,44 @@
         .auth-links a { color: var(--accent-primary); font-weight: 600; text-decoration: none; transition: var(--transition); }
         .auth-links a:hover { color: var(--accent-secondary); }
         
+        .form-input.is-invalid {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.02);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
         .error-message {
-            color: #ef4444;
-            font-size: 12px;
-            margin-top: 6px;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #b91c1c;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            animation: slideDown 0.3s ease-out forwards;
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        @keyframes slideDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            .auth-card {
+                padding: 32px 20px;
+                width: 100%;
+            }
+            .logo {
+                font-size: 28px;
+                margin-bottom: 32px;
+            }
         }
     </style>
 </head>
@@ -151,17 +184,23 @@
 
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
-                <input id="email" type="email" class="form-input" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
+                <input id="email" type="email" class="form-input @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
                 @error('email')
-                    <span class="error-message">{{ $message }}</span>
+                    <span class="error-message" id="email-error" role="alert">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        {{ $message }}
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">Password</label>
-                <input id="password" type="password" class="form-input" name="password" required autocomplete="current-password">
+                <input id="password" type="password" class="form-input @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
                 @error('password')
-                    <span class="error-message">{{ $message }}</span>
+                    <span class="error-message" id="password-error" role="alert">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        {{ $message }}
+                    </span>
                 @enderror
             </div>
 
@@ -182,6 +221,8 @@
             @endif
         </div>
     </div>
+
+    @include('partials.pulse-toast')
 
 </body>
 </html>

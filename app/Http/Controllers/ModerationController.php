@@ -173,7 +173,13 @@ class ModerationController extends Controller
     public function approvePost(Post $post)
     {
         $this->authorizeModeration($post);
-        $post->update(['is_approved' => true]);
+        $post->update([
+            'is_approved' => true,
+            'is_approval_notified' => false, // Reset to notify the owner
+            'is_reported' => false,         // Clear reported status upon approval
+            'reports_count' => 0,           // Clean slate
+            'published_at' => now(),        // Bring to front of feed
+        ]);
         return back()->with('success', 'Post approved and published.');
     }
 
@@ -202,7 +208,10 @@ class ModerationController extends Controller
     public function dismissReport(Post $post)
     {
         $this->authorizeModeration($post);
-        $post->update(['is_reported' => false]);
+        $post->update([
+            'is_reported' => false,
+            'is_report_notified' => true, // Mark as handled for staff
+        ]);
         return back()->with('success', 'Post report dismissed.');
     }
 

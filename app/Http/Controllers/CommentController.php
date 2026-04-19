@@ -25,13 +25,19 @@ class CommentController extends Controller
             ]);
         }
 
-        Comment::create([
+        $comment = Comment::create([
             'conversation_id' => $conversation->id,
             'user_id' => Auth::id(),
             'text' => $validated['text'],
             'commented_at' => now(),
             'is_reported' => false,
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('user.posts.partials.comment', ['comment' => $comment, 'post' => $post])->render()
+            ]);
+        }
 
         return redirect()
             ->route('posts.show', $post)
@@ -53,20 +59,27 @@ class CommentController extends Controller
             ->with('success', 'Comment deleted.');
     }
 
-    public function report(Comment $comment)
+    public function report(Request $request, Comment $comment)
     {
         if ($comment->user_id === Auth::id()) {
             return back()->with('error', 'You cannot report your own comment.');
         }
 
         $comment->increment('reports_count');
-        $comment->update(['is_reported' => true]);
+        $comment->update([
+            'is_reported'   => true,
+            'report_reason' => $request->input('reason', 'Other'),
+        ]);
+
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['message' => 'Report submitted.']);
+        }
 
         $post = $comment->conversation->post;
 
         return redirect()
             ->route('posts.show', $post)
-            ->with('success', 'Comment reported. It will be hidden automatically if it accumulates too many reports.');
+            ->with('success', 'Comment reported. It will be reviewed by our moderation team.');
     }
 
     public function update(Request $request, Comment $comment)

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Set New Password - Pulse</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg-dark: #f8fafc;
@@ -24,7 +26,14 @@
             --shadow-glow: 0 8px 25px rgba(124, 58, 237, 0.2);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
         body {
             background-color: var(--bg-dark);
             background-image:
@@ -37,6 +46,7 @@
             justify-content: center;
             padding: 24px;
         }
+
         .auth-card {
             background: var(--bg-glass);
             backdrop-filter: blur(12px);
@@ -46,8 +56,9 @@
             width: 100%;
             max-width: 440px;
             padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
         }
+
         .logo {
             display: flex;
             align-items: center;
@@ -62,25 +73,58 @@
             margin-bottom: 40px;
             text-decoration: none;
         }
-        .logo img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(124, 58, 237, 0.3)); }
-        .auth-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 12px; }
-        .auth-subtitle { font-size: 14px; color: var(--text-secondary); text-align: center; line-height: 1.5; margin-bottom: 32px; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+
+        .logo img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 20px rgba(124, 58, 237, 0.3));
+        }
+
+        .auth-title {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
         .form-input {
             width: 100%;
             padding: 12px 16px;
             border-radius: var(--radius-md);
-            border: 1px solid rgba(0,0,0,0.1);
-            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
             color: var(--text-primary);
             font-size: 15px;
             transition: var(--transition);
             outline: none;
         }
-        .form-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
-        
+
+        .form-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
         .btn-primary {
             width: 100%;
             padding: 14px;
@@ -94,14 +138,26 @@
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
             transition: var(--transition);
         }
-        .btn-primary:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
-        .error-message { color: #ef4444; font-size: 12px; margin-top: 6px; display: block; }
+
+        .btn-primary:hover {
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 6px;
+            display: block;
+        }
     </style>
 </head>
+
 <body>
     <div class="auth-card">
         <a href="/" class="logo">
-            <img src="/images/pulse_logo.png" alt="Pulse Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0idXJsKCNncmFkKSIvPjxwYXRoIGQ9Ik0xMCAxN0wxNSAyMkwyMiAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZWM0ODk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PC9zdmc+'" />
+            <img src="/images/pulse_logo.png" alt="Pulse Logo"
+                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0idXJsKCNncmFkKSIvPjxwYXRoIGQ9Ik0xMCAxN0wxNSAyMkwyMiAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZWM0ODk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PC9zdmc+'" />
             Pulse
         </a>
 
@@ -115,19 +171,22 @@
 
             <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
-                <input id="email" type="email" class="form-input" name="email" value="{{ old('email', $request->email) }}" required autofocus autocomplete="username">
+                <input id="email" type="email" class="form-input" name="email"
+                    value="{{ old('email', $request->email) }}" required autofocus autocomplete="username">
                 @error('email') <span class="error-message">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">New Password</label>
-                <input id="password" type="password" class="form-input" name="password" required autocomplete="new-password" placeholder="••••••••">
+                <input id="password" type="password" class="form-input" name="password" required
+                    autocomplete="new-password" placeholder="••••••••">
                 @error('password') <span class="error-message">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
                 <label for="password_confirmation" class="form-label">Confirm New Password</label>
-                <input id="password_confirmation" type="password" class="form-input" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••">
+                <input id="password_confirmation" type="password" class="form-input" name="password_confirmation"
+                    required autocomplete="new-password" placeholder="••••••••">
                 @error('password_confirmation') <span class="error-message">{{ $message }}</span> @enderror
             </div>
 
@@ -137,4 +196,5 @@
         </form>
     </div>
 </body>
+
 </html>

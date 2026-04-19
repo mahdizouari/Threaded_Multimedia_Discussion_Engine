@@ -45,7 +45,15 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Incorrect email or password. Please double-check and try again.',
+            ]);
+        }
+
+        if (Auth::check() && Auth::user()->is_blocked) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Your account has been restricted by an administrator. You cannot log in.'
             ]);
         }
 

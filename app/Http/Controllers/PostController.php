@@ -146,6 +146,11 @@ class PostController extends Controller
             }
         }
 
+        // Auto-dismiss approval notification for owner
+        if ($user && (int) $post->user_id === (int) $user->id && $post->is_approved && !$post->is_approval_notified) {
+            $post->update(['is_approval_notified' => true]);
+        }
+
         $post->load([
             'user',
             'category',
@@ -207,32 +212,78 @@ class PostController extends Controller
             ->with('success', 'Post deleted successfully.');
     }
 
-    public function report(Post $post)
+    public function report(Request $request, Post $post)
     {
         if ($post->user_id === Auth::id()) {
             return back()->with('error', 'You cannot report your own post.');
         }
 
         $post->increment('reports_count');
-        $post->update(['is_reported' => true]);
-
-        return redirect()
-            ->route('posts.show', $post)
-            ->with('success', 'Report recorded. The content will be hidden automatically if it accumulates too many reports.');
-    }
-
-    public function approve(Post $post)
-    {
-        if (!in_array(Auth::user()->role, ['admin', 'moderator'])) {
-            abort(403, 'Only administrators and moderators can approve posts.');
-        }
-
         $post->update([
-            'is_approved' => true,
+            'is_reported'         => true,
+            'is_report_notified'  => false,
+            'report_reason'       => $request->input('reason', 'Other'),
         ]);
 
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['message' => 'Report submitted.']);
+        }
+
         return redirect()
             ->route('posts.show', $post)
-            ->with('success', 'Post approved successfully.');
+            ->with('success', 'Report recorded. The content will be reviewed by our moderation team.');
+    }
+
+    public function searchAjax(Request $request)
+    {
+        $search = $request->query('u_search') ?? $request->query('search');
+        
+        $query = Post::with(['user.profile', 'category', 'reactions.appreciation'])
+            ->withCount('comments')
+            ->whereHas('user', function ($q) {
+                $q->where('role', 'user');
+            })
+            ->where('is_approved', true);
+
+        if ($search) {
+            $query->where('title', 'LIKE', "{$search}%");
+        }
+
+        if ($request->has('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $sort = $request->get('sort', 'new');
+        switch ($sort) {
+            case 'following':
+                if (Auth::check()) {
+                    $interestIds = Auth::user()->interests()->pluck('categories.id')->toArray();
+                    if (!empty($interestIds)) {
+                        $query->whereIn('category_id', $interestIds);
+                    }
+                }
+                $query->latest();
+                break;
+            case 'hot':
+                $query->withCount([
+                    'reactions as upvotes_count' => function ($q) {
+                        $q->whereHas('appreciation', function ($query) {
+                            $query->where('type', 'TOP');
+                        });
+                    }
+                ])->orderByDesc('upvotes_count')->latest();
+                break;
+            case 'best':
+                $query->orderByDesc('comments_count')->latest();
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        $posts = $query->paginate(15);
+
+        // Return the rendered partial
+        return view('user.posts.partials.post-list', compact('posts'))->render();
     }
 }
