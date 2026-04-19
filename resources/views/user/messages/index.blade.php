@@ -1,11 +1,11 @@
 @extends('layouts.pulse')
 
-@section('title', 'Direct Messages — Pulse')
+@section('title', 'Direct Chats — Pulse')
 
 @section('content')
 <div class="messages-container glass-panel" style="border-radius: var(--radius-lg); padding: 0; overflow: hidden; min-height: 80vh; display: flex; flex-direction: column;">
     <div class="messages-header" style="padding: 24px 32px; border-bottom: 1px solid var(--border-glass); background: rgba(0,0,0,0.02);">
-        <h1 style="font-size: 24px; font-weight: 800;">Direct Messages</h1>
+        <h1 style="font-size: 24px; font-weight: 800;">Direct Chats</h1>
     </div>
 
     <div class="messages-layout" style="display: grid; grid-template-columns: 320px 1fr; flex: 1;">
@@ -15,7 +15,7 @@
             
             <!-- User Search -->
             <form action="{{ route('messages.index') }}" method="GET" style="margin-bottom: 20px; position: relative;">
-                <input type="text" name="search" placeholder="Search users..." value="{{ $search ?? '' }}" 
+                <input type="text" name="u_search" placeholder="Search users..." value="{{ $search ?? '' }}" 
                     style="width: 100%; padding: 10px 16px 10px 36px; border-radius: var(--radius-pill); border: 1px solid var(--border-glass); background: rgba(0,0,0,0.02); font-size: 14px; outline: none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%);">
                     <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -28,11 +28,11 @@
                     <img src="{{ $user->profile && $user->profile->avatar_path ? asset('storage/' . $user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($user->username ?? $user->name) }}" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     <div style="flex: 1; overflow: hidden;">
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-weight: 700; font-size: 15px; color: var(--text-primary);">{{ $user->username ?? $user->name }}</span>
+                            <span style="font-weight: 700; font-size: 15px; color: var(--text-primary);">u/{{ $user->username ?? 'user' }}</span>
                             @if($user->isAdmin())
-                                <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #ef4444; color: white; text-transform: uppercase; letter-spacing: 0.05em;">Admin</span>
+                                <span style="font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #ef4444; color: white; text-transform: uppercase; letter-spacing: 0.05em;">ADMINISTRATOR</span>
                             @elseif($user->isModerator())
-                                <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #8b5cf6; color: white; text-transform: uppercase; letter-spacing: 0.05em;">Mod</span>
+                                <span style="font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #8b5cf6; color: white; text-transform: uppercase; letter-spacing: 0.05em;">MODERATOR</span>
                             @endif
                         </div>
                         <div style="font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Click to chat</div>
@@ -40,7 +40,7 @@
                 </a>
                 @empty
                 <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 14px;">
-                    No messages yet. Start a conversation from a post!
+                    No chats yet. Start a conversation from a post!
                 </div>
                 @endforelse
             </div>

@@ -23,5 +23,10 @@ class Category extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function interestedUsers()
+    {
+        return $this->belongsToMany(User::class, 'category_user_interests');
+    }
 }
 

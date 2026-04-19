@@ -13,7 +13,7 @@ class MessageController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
-        $search = $request->query('search');
+        $search = $request->query('u_search');
 
         // Get unique users with whom we have messaged
         $conversations = Message::where('sender_id', $userId)
@@ -61,6 +61,24 @@ class MessageController extends Controller
             ->update(['read_at' => now()]);
 
         return view('user.messages.show', compact('user', 'messages'));
+    }
+
+    public function fetchMessages(User $user)
+    {
+        $userId = Auth::id();
+        
+        $messages = Message::where(function($q) use ($userId, $user) {
+                $q->where('sender_id', $userId)->where('receiver_id', $user->id);
+            })->orWhere(function($q) use ($userId, $user) {
+                $q->where('sender_id', $user->id)->where('receiver_id', $userId);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages,
+            'current_user_id' => $userId
+        ]);
     }
 
     public function store(Request $request)

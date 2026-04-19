@@ -31,9 +31,16 @@
                 <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
                     <span style="color: var(--accent-primary);">p/{{ strtolower($post->category->label) }}</span>
                     <span>•</span>
-                    <span>Posted by u/{{ $post->user->username }}</span>
+                    <span>u/{{ $post->user->username }}</span>
                     <span>•</span>
-                    <span>{{ $post->created_at->diffForHumans() }}</span>
+                    @php
+                        $waitHours = $post->created_at->diffInHours();
+                        $waitColor = $waitHours > 24 ? '#ef4444' : ($waitHours > 12 ? '#f97316' : 'var(--text-muted)');
+                    @endphp
+                    <span style="display: flex; align-items: center; gap: 4px; color: {{ $waitColor }};">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Waiting for {{ $post->created_at->diffForHumans(null, true) }}
+                    </span>
                 </div>
                 <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">{{ $post->title }}</h3>
                 <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 800px;">{{ Str::limit($post->content, 200) }}</p>

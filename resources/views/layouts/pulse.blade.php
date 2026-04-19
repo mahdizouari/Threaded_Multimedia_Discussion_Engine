@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pulse - The Modern Multimedia Forum</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/pulse_logo.png') }}">
@@ -811,14 +812,32 @@
             color: var(--text-primary);
         }
 
-        .action-btn.upvote.active {
+        .action-btn.like-btn:hover {
             color: #22c55e;
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(34, 197, 94, 0.12);
         }
 
-        .action-btn.downvote.active {
+        .action-btn.like-btn.active {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .action-btn.like-btn.active svg {
+            fill: #22c55e;
+        }
+
+        .action-btn.dislike-btn:hover {
             color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        .action-btn.dislike-btn.active {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .action-btn.dislike-btn.active svg {
+            fill: #ef4444;
         }
 
         .vote-count {
@@ -1452,16 +1471,71 @@
         </style>
         </div>
 
-        <div class="nav-right">
+        <div class="nav-right" style="position: relative;">
             @auth
-                @if(auth()->user()->role !== 'user')
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline" style="margin-right: 12px;">Dashboard</a>
-                @endif
+                <div class="user-dropdown"
+                    onclick="const m = document.getElementById('userMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none';"
+                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-pill); transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background=''">
+                    <img src="{{ Auth::user()->profile && Auth::user()->profile->avatar_path ? asset('storage/' . Auth::user()->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . (Auth::user()->username) }}"
+                        alt="avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="display: flex; flex-direction: column;">
+                        <span
+                            style="font-size: 14px; font-weight: 800; color: var(--text-primary); line-height: 1.2;">u/{{ Auth::user()->username }}</span>
+                        <span
+                            style="font-size: 11px; color: var(--accent-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">{{ strtoupper(Auth::user()->role) }}</span>
+                    </div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="width: 14px; height: 14px; color: var(--text-muted); margin-left: 4px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
 
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">Logout</button>
-                </form>
+                <div id="userMenu"
+                    style="display: none; position: absolute; top: calc(100% + 12px); right: 0; width: 220px; background: white; border-radius: var(--radius-md); box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); padding: 8px; z-index: 100;">
+                    @if(auth()->user()->role !== 'user')
+                        <a href="{{ route('dashboard') }}"
+                            style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--accent-primary); text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px; transition: background 0.2s;"
+                            onmouseover="this.style.background='rgba(124, 58, 237, 0.05)'"
+                            onmouseout="this.style.background=''">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                            Staff Dashboard
+                        </a>
+                        <div style="height: 1px; background: rgba(0,0,0,0.05); margin: 4px 0;"></div>
+                    @endif
+
+                    <a href="{{ route('profile.edit') }}"
+                        style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; transition: background 0.2s;"
+                        onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background=''">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Edit Profile
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit"
+                            style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ef4444; background: none; border: none; font-size: 13px; font-weight: 600; text-align: left; border-radius: 8px; cursor: pointer; transition: background 0.2s;"
+                            onmouseover="this.style.background='rgba(239, 68, 68, 0.05)'"
+                            onmouseout="this.style.background=''">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Log Out
+                        </button>
+                    </form>
+                </div>
             @else
                 <a href="{{ route('register') }}" class="btn btn-outline">Sign Up</a>
                 <a href="{{ route('login') }}" class="btn btn-primary">Log In</a>
@@ -1469,71 +1543,208 @@
         </div>
     </nav>
 
-    @if(session('success') || session('error'))
-        <div class="toast-notification {{ session('error') ? 'error' : 'success' }}" id="toast-message">
-            <div class="toast-icon">
-                @if(session('success'))
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+    {{-- ====================================================
+         PERFECT VISION NOTIFICATION SYSTEM
+         ISO 9241 : Feedback ergonomique & Contrôlabilité
+    ===================================================== --}}
+    <div id="pulse-toast-container" style="position: fixed; top: 24px; right: 24px; z-index: 10001; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
+        @if(session('success') || session('error'))
+            <div class="toast-notification {{ session('error') ? 'error' : 'success' }}" id="toast-message" style="pointer-events: auto;">
+                <div class="toast-icon">
+                    @if(session('success'))
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    @else
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    @endif
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">Pulse System</div>
+                    <div class="toast-desc">{{ session('success') ?? session('error') }}</div>
+                </div>
+                <button class="toast-close" onclick="pulseClearToast(this.parentElement)" title="Dismiss">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                @else
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                @endif
+                </button>
+                <div class="toast-progress"></div>
             </div>
-            <div class="toast-content">
-                <div class="toast-title">Sys. Notification</div>
-                <div class="toast-desc">{{ session('success') ?? session('error') }}</div>
-            </div>
-            <button class="toast-close" onclick="this.parentElement.remove()" title="Dismiss">&times;</button>
-        </div>
-        <style>
-            .toast-notification {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                border-radius: 16px;
-                padding: 16px 20px;
-                box-shadow: 0 25px 50px -12px rgba(124, 58, 237, 0.25);
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                z-index: 9999;
-                width: max-content;
-                max-width: 380px;
-                animation: toastSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        @endif
+    </div>
+
+    <style>
+        .toast-notification {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 18px 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.08),
+                inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: max-content;
+            min-width: 340px;
+            max-width: 460px;
+            position: relative;
+            overflow: hidden;
+            animation: pulseToastBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transition: all 0.4s ease;
+        }
+
+        .toast-notification.success {
+            border-bottom: 3px solid #22c55e;
+            background: rgba(240, 253, 244, 0.45);
+        }
+
+        .toast-notification.error {
+            border-bottom: 3px solid #ef4444;
+            background: rgba(254, 242, 242, 0.45);
+        }
+
+        .toast-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .success .toast-icon {
+            background: var(--accent-gradient);
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
+        }
+
+        .error .toast-icon {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+        }
+
+        .toast-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toast-title {
+            font-weight: 900;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .toast-desc {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: rgba(0, 0, 0, 0.03);
+            border: none;
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: auto;
+            transition: all 0.3s;
+        }
+
+        .toast-close:hover {
+            background: var(--accent-gradient);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .toast-progress::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            transform-origin: left;
+            animation: pulseToastTimer 5s linear forwards;
+        }
+
+        .toast-notification:hover .toast-progress::after {
+            animation-play-state: paused;
+        }
+
+        .success .toast-progress::after { color: #22c55e; }
+        .error .toast-progress::after { color: #ef4444; }
+
+        @keyframes pulseToastBounce {
+            0% { opacity: 0; transform: translateX(60px) scale(0.8); }
+            70% { transform: translateX(-10px) scale(1.02); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        @keyframes pulseToastOut {
+            to { opacity: 0; transform: translateX(40px) scale(0.9); filter: blur(10px); }
+        }
+
+        @keyframes pulseToastTimer {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+    </style>
+
+    <script>
+        function pulseClearToast(el) {
+            el.style.animation = 'pulseToastOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            setTimeout(() => el.remove(), 400);
+        }
+
+        // Auto-dismiss with "Pause on Hover" logic
+        document.querySelectorAll('.toast-notification').forEach(toast => {
+            let timeout;
+            let startTime = Date.now();
+            let timeLeft = 5000;
+
+            function startTimer() {
+                timeout = setTimeout(() => pulseClearToast(toast), timeLeft);
+                startTime = Date.now();
             }
-            .toast-notification.success .toast-icon { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-            .toast-notification.error .toast-icon { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-            .toast-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-            .toast-content { display: flex; flex-direction: column; gap: 4px; }
-            .toast-title { font-weight: 800; font-size: 13px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
-            .toast-desc { font-weight: 600; font-size: 15px; color: var(--text-primary); line-height: 1.4; }
-            .toast-close { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; padding: 0 4px; margin-left: 12px; transition: color 0.2s; align-self: flex-start; line-height: 1; }
-            .toast-close:hover { color: var(--accent-primary); }
-            
-            @keyframes toastSlideUp {
-                from { opacity: 0; transform: translateY(100px) scale(0.9); }
-                to { opacity: 1; transform: translateY(0) scale(1); }
-            }
-            @keyframes toastFadeOut {
-                to { opacity: 0; transform: translateY(-20px) scale(0.95); }
-            }
-        </style>
-        <script>
-            setTimeout(() => {
-                const toast = document.getElementById('toast-message');
-                if(toast) {
-                    toast.style.animation = 'toastFadeOut 0.4s ease forwards';
-                    setTimeout(() => toast.remove(), 400);
-                }
-            }, 6000);
-        </script>
-    @endif
+
+            toast.addEventListener('mouseenter', () => {
+                clearTimeout(timeout);
+                timeLeft -= Date.now() - startTime;
+            });
+
+            toast.addEventListener('mouseleave', () => {
+                if (timeLeft > 0) startTimer();
+            });
+
+            startTimer();
+        });
+    </script>
 
     @auth
         @php $unreadCount = auth()->user()->receivedMessages()->unread()->count(); @endphp
@@ -1544,11 +1755,11 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                You have {{ $unreadCount }} new message{{ $unreadCount > 1 ? 's' : '' }}!
+                You have {{ $unreadCount }} new chat{{ $unreadCount > 1 ? 's' : '' }}!
                 @if(Auth::user()->role === 'user')
                     <a href="{{ route('messages.index') }}"
                         style="padding: 10px 24px; background: rgba(0,0,0,0.05); color: var(--text-primary); border-radius: var(--radius-pill); font-size: 14px; font-weight: 700; text-decoration: none;"
-                        onclick="event.stopPropagation()">View my messages</a>
+                        onclick="event.stopPropagation()">View my chats</a>
                 @endif
             </div>
             <style>
@@ -1610,7 +1821,7 @@
                             <div class="nav-icon"><svg viewBox="0 0 24 24">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                 </svg></div>
-                            <span class="nav-text">Messages</span>
+                            <span class="nav-text">Chats</span>
                             @if(isset($unreadCount) && $unreadCount > 0)
                                 <span
                                     style="position: absolute; left: 32px; top: 8px; width: 10px; height: 10px; background: #ef4444; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);"></span>
@@ -1700,8 +1911,17 @@
                 <div class="nav-group" style="margin-top: 16px;">
                     <div class="nav-title">Explore</div>
                     @foreach($nav_categories as $cat)
+                        @php
+                            $isActive = false;
+                            $currentCatId = is_object(request('category')) ? request('category')->id : request('category');
+                            if ($currentCatId == $cat->id) {
+                                $isActive = true;
+                            } elseif (request('sort') === 'following' && Auth::check() && Auth::user()->interests->contains('id', $cat->id)) {
+                                $isActive = true;
+                            }
+                        @endphp
                         <a href="{{ route('home', ['category' => $cat->id]) }}"
-                            class="nav-item {{ (is_object(request('category')) ? request('category')->id : request('category')) == $cat->id ? 'active' : '' }}">
+                            class="nav-item {{ $isActive ? 'active' : '' }}">
                             <div class="nav-icon" style="color: var(--accent-primary); opacity: 0.8;">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2.5">
@@ -1726,213 +1946,600 @@
 
         <!-- Right Sidebar -->
         <aside class="right-sidebar">
-            @auth
-                <div class="user-widget">
-                    <div class="user-widget-info">
-                        <img src="{{ Auth::user()->profile && Auth::user()->profile->avatar_path ? asset('storage/' . Auth::user()->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . (Auth::user()->username ?? Auth::user()->name) }}"
-                            alt="avatar" class="user-widget-avatar">
-                        <div>
-                            <span class="user-widget-name">Welcome back, {{ Auth::user()->name }}</span>
-                            <span class="user-widget-handle">u/{{ Auth::user()->username ?? 'user' }}</span>
-                        </div>
+            <div class="sidebar-sticky"
+                style="position: sticky; top: 104px; display: flex; flex-direction: column; gap: 24px; height: calc(100vh - 120px); overflow-y: auto; padding-right: 8px;">
+
+                <!-- Top Creators Widget -->
+                <div class="pulse-widget"
+                    style="background: white; border-radius: var(--radius-lg); padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-glass);">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <h3
+                            style="font-size: 13px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                            Top Creators</h3>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2.5" style="color: var(--accent-primary);">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                            </polygon>
+                        </svg>
                     </div>
-                    <div class="user-widget-stats">
-                        <a href="{{ route('profile.edit') }}" class="stat-btn">Edit Profile</a>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        @auth
+                            @php $topUsers = \App\Models\User::where('id', '!=', auth()->id())->withCount('posts')->orderByDesc('posts_count')->take(3)->get(); @endphp
+                        @else
+                            @php $topUsers = \App\Models\User::withCount('posts')->orderByDesc('posts_count')->take(3)->get(); @endphp
+                        @endauth
+
+                        @foreach($topUsers as $topUser)
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 12px; transition: background 0.2s;"
+                                onmouseover="this.style.background='rgba(0,0,0,0.02)'"
+                                onmouseout="this.style.background=''">
+                                <a href="{{ route('users.show', $topUser->username) }}"
+                                    style="display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 1; min-width: 0;">
+                                    <div style="position: relative; flex-shrink: 0;">
+                                        <img src="{{ $topUser->profile && $topUser->profile->avatar_path ? asset('storage/' . $topUser->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($topUser->username ?? $topUser->name) }}"
+                                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                        <div
+                                            style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border: 2px solid white; border-radius: 50%;">
+                                        </div>
+                                    </div>
+                                    <div style="min-width: 0;">
+                                        <div
+                                            style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            {{ $topUser->username }}</div>
+                                        <div style="font-size: 11px; font-weight: 500; color: var(--text-muted);">
+                                            {{ $topUser->posts_count }} posts</div>
+                                    </div>
+                                </a>
+                                @auth
+                                    @if(auth()->id() !== $topUser->id)
+                                        <a href="{{ route('messages.show', $topUser->id) }}"
+                                            title="Send a chat"
+                                            style="background: rgba(124, 58, 237, 0.08); color: var(--accent-primary); padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-decoration: none; flex-shrink: 0; margin-left: 8px;"
+                                            onmouseover="this.style.background='var(--accent-gradient)'; this.style.color='white'; this.style.boxShadow='0 4px 10px rgba(124,58,237,0.2)';"
+                                            onmouseout="this.style.background='rgba(124, 58, 237, 0.08)'; this.style.color='var(--accent-primary)'; this.style.boxShadow='none';">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                @endauth
+                            </div>
+                        @endforeach
                     </div>
                 </div>
-            @endauth
 
-            <!-- Widgets placeholder or other future dynamic content -->
-        </aside>
-    </div>
+                @auth
+                    <!-- Aside Integrated Interactive Chat Widget -->
+                    <div class="pulse-widget" id="aside-messenger"
+                        style="background: white; border-radius: var(--radius-lg); box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-glass); display: flex; flex-direction: column; overflow: hidden; margin-top: auto; min-height: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
 
-    <!-- Modals -->
-    @auth
-        <!-- Create Post Modal -->
-        <div class="modal-overlay" id="modalPost">
-            <div class="modal-card"
-                style="background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 0; overflow: hidden;">
-                <div class="modal-header"
-                    style="background: rgba(124, 58, 237, 0.02); border-bottom: 1px solid rgba(124, 58, 237, 0.05); padding: 16px 24px;">
-                    <h2 class="modal-title"
-                        style="font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; font-size: 16px;">
-                        Create a New Post</h2>
-                    <button onclick="closeModal('modalPost')"
-                        style="background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: color 0.2s;"
-                        onmouseover="this.style.color='#ef4444'"
-                        onmouseout="this.style.color='var(--text-muted)'">&times;</button>
-                </div>
-                <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div style="padding: 20px 24px;">
-                        <!-- Category Selection -->
-                        <div style="margin-bottom: 16px;">
-                            <label
-                                style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 6px; letter-spacing: 0.5px;">Select
-                                Community Hub</label>
-                            <div class="custom-select-wrapper" style="position: relative;">
-                                @php $firstCat = $nav_categories->first(); @endphp
-                                <input type="hidden" name="category_id" id="category_id_input"
-                                    value="{{ $firstCat ? $firstCat->id : '' }}">
-
-                                <div id="custom-select-trigger" onclick="toggleCustomSelect()"
-                                    style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid rgba(124, 58, 237, 0.15); background: rgba(248, 250, 252, 0.8); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
-                                    <span id="custom-select-text"
-                                        style="color: var(--text-primary); font-weight: 800; font-size: 14px;">{{ $firstCat ? $firstCat->label : 'Select Community...' }}</span>
-                                    <svg id="custom-select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                        stroke="var(--accent-primary)" stroke-width="2.5"
-                                        style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
+                        <!-- App Header -->
+                        <div onclick="toggleAsideMessenger()"
+                        <div onclick="toggleAsideMessenger()"
+                            style="padding: 16px 20px; border-bottom: 1px solid var(--border-glass); background: white; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.2s;"
+                            onmouseover="this.style.background='rgba(124, 58, 237, 0.04)'"
+                            onmouseout="this.style.background='white'">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div
+                                    style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-gradient); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                     </svg>
                                 </div>
+                                <div>
+                                    <h3
+                                        style="font-size: 14.5px; font-weight: 800; color: var(--text-primary); margin: 0; letter-spacing: -0.2px;">
+                                        Chats</h3>
+                                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Chat Live
+                                    </div>
+                                </div>
+                            </div>
+                            <svg id="messenger-icon-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5"
+                                style="color: var(--text-muted); transition: transform 0.3s;">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
 
-                                <div id="custom-select-options"
-                                    style="position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #ffffff; border: 1px solid rgba(124, 58, 237, 0.1); border-radius: 12px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.15); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 50; overflow: hidden; max-height: 220px; overflow-y: auto;">
-                                    @foreach($nav_categories as $cat)
-                                        <div class="custom-option"
-                                            onclick="selectCategory('{{ $cat->id }}', '{{ $cat->label }}')"
-                                            style="padding: 12px 16px; font-weight: 700; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); border-bottom: 1px solid rgba(0,0,0,0.02);"
-                                            onmouseover="this.style.background='rgba(124, 58, 237, 0.05)'; this.style.color='var(--accent-primary)'; this.style.paddingLeft='24px'"
-                                            onmouseout="this.style.background='transparent'; this.style.color='var(--text-primary)'; this.style.paddingLeft='16px'">
-                                            {{ $cat->label }}
+                        <!-- App Body (Hidden by default) -->
+                        <div id="messenger-body"
+                            style="display: none; flex-direction: column; flex: 1; max-height: 400px; min-height: 0;">
+
+                            <!-- Search & Contact List View -->
+                            <div id="messenger-view-contacts"
+                                style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
+                                <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-glass);">
+                                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.03); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); transition: background 0.2s, border-color 0.2s;"
+                                        onfocusin="this.style.background='white'; this.style.borderColor='var(--accent-primary)'"
+                                        onfocusout="this.style.background='rgba(0,0,0,0.03)'; this.style.borderColor='rgba(0,0,0,0.05)'">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5" style="color: var(--text-muted);">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                        <input type="text" id="aside-user-search" onkeyup="filterAsideUsers()"
+                                            placeholder="Search..."
+                                            style="border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: var(--text-primary);">
+                                    </div>
+                                </div>
+                                <div style="overflow-y: auto; padding: 8px 0; flex: 1; min-height: 0;"
+                                    class="sidebar-sticky">
+                                    @php
+                                        $recentIds = [];
+                                        $recentConvos = collect();
+                                        if (auth()->check()) {
+                                            $userId = auth()->id();
+                                            $recentConvos = \App\Models\Message::where('sender_id', $userId)
+                                                ->orWhere('receiver_id', $userId)
+                                                ->with(['sender', 'receiver'])
+                                                ->latest()
+                                                ->get()
+                                                ->map(function ($msg) use ($userId) {
+                                                    return $msg->sender_id === $userId ? $msg->receiver : $msg->sender;
+                                                })
+                                                ->unique('id')
+                                                ->take(10);
+                                            $recentIds = $recentConvos->pluck('id')->toArray();
+                                        }
+                                    @endphp
+
+                                    <div id="messenger-empty-state"
+                                        style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 13.5px; display: {{ $recentConvos->count() > 0 ? 'none' : 'block' }};">
+                                        Search for someone by name.
+                                    </div>
+
+                                    @php
+                                        $otherUsers = \App\Models\User::where('id', '!=', auth()->id())
+                                            ->whereNotIn('id', $recentIds)
+                                            ->get();
+
+                                        $allUsers = $recentConvos->concat($otherUsers);
+                                    @endphp
+
+                                    @foreach($allUsers as $u)
+                                        @php $isRecent = in_array($u->id, $recentIds); @endphp
+                                        <div class="aside-contact-item" data-recent="{{ $isRecent ? 'true' : 'false' }}"
+                                            onclick="openAsideChat({{ $u->id }}, '{{ addslashes($u->username) }}', '{{ $u->profile && $u->profile->avatar_path ? asset('storage/' . $u->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($u->username ?? $u->name) }}')"
+                                            style="display: {{ $isRecent ? 'flex' : 'none' }}; align-items: center; gap: 14px; padding: 12px 20px; cursor: pointer; transition: all 0.2s;"
+                                            onmouseover="this.style.background='rgba(124, 58, 237, 0.05)'; this.style.paddingLeft='24px';"
+                                            onmouseout="this.style.background=''; this.style.paddingLeft='20px';">
+                                            <div style="position: relative;">
+                                                <img src="{{ $u->profile && $u->profile->avatar_path ? asset('storage/' . $u->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($u->username ?? $u->name) }}"
+                                                    style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                                <div
+                                                    style="position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #22c55e; border: 2px solid white; border-radius: 50%;">
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="font-weight: 800; color: var(--text-primary); font-size: 13.5px; letter-spacing: -0.2px;">
+                                                {{ $u->username }}</div>
                                         </div>
                                     @endforeach
                                 </div>
                             </div>
 
-                            <script>
-                                function toggleCustomSelect() {
-                                    const options = document.getElementById('custom-select-options');
-                                    const trigger = document.getElementById('custom-select-trigger');
-                                    const icon = document.getElementById('custom-select-icon');
+                            <!-- Active Chat View -->
+                            <div id="messenger-view-chat"
+                                style="display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
 
-                                    if (options.style.visibility === 'hidden') {
-                                        options.style.visibility = 'visible';
-                                        options.style.opacity = '1';
-                                        options.style.transform = 'translateY(0)';
-                                        trigger.style.borderColor = 'var(--accent-primary)';
-                                        trigger.style.background = '#ffffff';
-                                        trigger.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.1)';
-                                        icon.style.transform = 'rotate(180deg)';
-                                    } else {
-                                        closeCustomSelect();
-                                    }
-                                }
+                                <div
+                                    style="padding: 16px 20px; background: white; border-bottom: 1px solid var(--border-glass); display: flex; align-items: center; gap: 14px;">
+                                    <button onclick="closeAsideChat()"
+                                        style="background: white; border: 1px solid var(--border-glass); box-shadow: 0 2px 4px rgba(0,0,0,0.02); color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 50%; display: flex; transition: all 0.2s;"
+                                        onmouseover="this.style.background='var(--accent-gradient)'; this.style.color='white'; this.style.borderColor='transparent';"
+                                        onmouseout="this.style.background='white'; this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-glass)';">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div style="position: relative;">
+                                        <img id="active-chat-avatar" src=""
+                                            style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                        <div
+                                            style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #22c55e; border: 2px solid white; border-radius: 50%;">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div id="active-chat-name"
+                                            style="font-size: 14px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.2px;">
+                                            User</div>
+                                        <div style="font-size: 11px; color: #16a34a; font-weight: 700;">Online</div>
+                                    </div>
+                                </div>
 
-                                function selectCategory(id, label) {
-                                    document.getElementById('category_id_input').value = id;
-                                    const textSpan = document.getElementById('custom-select-text');
-                                    textSpan.innerText = label;
-                                    closeCustomSelect();
-                                }
+                                <div id="aside-chat-messages"
+                                    style="padding: 16px; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: #fafafa;"
+                                    class="sidebar-sticky">
+                                    <!-- Status text -->
+                                    <div
+                                        style="text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">
+                                        Starting conversation...</div>
+                                </div>
 
-                                function closeCustomSelect() {
-                                    const options = document.getElementById('custom-select-options');
-                                    const trigger = document.getElementById('custom-select-trigger');
-                                    const icon = document.getElementById('custom-select-icon');
-
-                                    if (options && options.style.visibility === 'visible') {
-                                        options.style.visibility = 'hidden';
-                                        options.style.opacity = '0';
-                                        options.style.transform = 'translateY(-10px)';
-                                        trigger.style.borderColor = 'rgba(124, 58, 237, 0.15)';
-                                        trigger.style.background = 'rgba(248, 250, 252, 0.8)';
-                                        trigger.style.boxShadow = 'none';
-                                        icon.style.transform = 'rotate(0deg)';
-                                    }
-                                }
-
-                                document.addEventListener('click', function (e) {
-                                    const wrapper = document.querySelector('.custom-select-wrapper');
-                                    if (wrapper && !wrapper.contains(e.target)) {
-                                        closeCustomSelect();
-                                    }
-                                });
-                            </script>
-                        </div>
-
-                        <!-- Post Content Group -->
-                        <div
-                            style="background: rgba(248, 250, 252, 0.5); border: 1.5px solid rgba(124, 58, 237, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 16px;">
-                            <input type="text" name="title" placeholder="Post Title" required
-                                style="width: 100%; padding: 10px; border: none; background: transparent; font-size: 15px; font-weight: 800; color: var(--text-primary); outline: none; border-bottom: 1.5px solid rgba(124, 58, 237, 0.05); margin-bottom: 6px;"
-                                onfocus="this.parentElement.style.borderColor='var(--accent-primary)'; this.parentElement.style.background='#ffffff'; this.parentElement.style.boxShadow='0 10px 25px -5px rgba(124, 58, 237, 0.08)'"
-                                onblur="this.parentElement.style.borderColor='rgba(124, 58, 237, 0.1)'; this.parentElement.style.background='rgba(248, 250, 252, 0.5)'; this.parentElement.style.boxShadow='none'">
-
-                            <textarea name="content" placeholder="Share your thoughts with the community..." required
-                                style="width: 100%; height: 110px; padding: 10px; border: none; background: transparent; font-size: 14px; font-weight: 500; color: var(--text-primary); outline: none; resize: none; line-height: 1.5;"></textarea>
-                        </div>
-
-                        <!-- Media Dropzone -->
-                        <div class="media-dropzone"
-                            style="border: 2px dashed rgba(124, 58, 237, 0.2); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(124, 58, 237, 0.01);"
-                            onclick="document.getElementById('modal-file').click()"
-                            onmouseover="this.style.background='rgba(124, 58, 237, 0.04)'; this.style.borderColor='var(--accent-primary)'"
-                            onmouseout="this.style.background='rgba(124, 58, 237, 0.01)'; this.style.borderColor='rgba(124, 58, 237, 0.2)'">
-                            <div
-                                style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
-                                    stroke-width="2.5">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                    <polyline points="21 15 16 10 5 21"></polyline>
-                                </svg>
+                                <div
+                                    style="padding: 16px 20px; border-top: 1px solid var(--border-glass); background: white;">
+                                    <form id="aside-chat-form" onsubmit="sendAsideMessage(event)"
+                                        style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.03); padding: 8px 16px; border-radius: 24px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); border: 1px solid var(--border-glass);">
+                                        <input type="text" id="aside-chat-input" placeholder="Send a message..."
+                                            style="border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: var(--text-primary);"
+                                            autocomplete="off" required>
+                                        <button type="submit"
+                                            style="background: var(--accent-gradient); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3); transition: transform 0.2s;"
+                                            onmouseover="this.style.transform='scale(1.05)'"
+                                            onmouseout="this.style.transform='scale(1)'">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                                                stroke="currentColor" stroke-width="2.5">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                            <p style="font-size: 12px; font-weight: 800; color: var(--accent-primary); margin-bottom: 2px;">
-                                Add Media</p>
-                            <p style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Images or video</p>
-                            <input type="file" id="modal-file" name="media" style="display: none;"
-                                onchange="previewImage(this)">
-                        </div>
 
-                        <div id="image-preview-container" style="margin-top: 12px;">
-                            <img id="image-preview" src=""
-                                style="width: 100%; border-radius: 10px; display: none; object-fit: cover; max-height: 180px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                            <div class="remove-preview" onclick="removePreview()" style="display: none;">&times;</div>
                         </div>
                     </div>
 
-                    <div class="modal-footer"
-                        style="padding: 16px 24px; background: rgba(248, 250, 252, 0.8); border-top: 1px solid rgba(124, 58, 237, 0.05); display: flex; justify-content: flex-end; gap: 10px;">
-                        <button type="button" class="btn-pill ghost" onclick="closeModal('modalPost')"
-                            style="padding: 10px 20px; font-size: 13px;">Discard</button>
-                        <button type="submit" class="btn-pill primary" style="padding: 10px 24px; font-size: 13px;">Post to
-                            Community</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    <script>
+                        function toggleAsideMessenger() {
+                            const widget = document.getElementById('aside-messenger');
+                            const body = document.getElementById('messenger-body');
+                            const icon = document.getElementById('messenger-icon-chevron');
+                            if (body.style.display === 'none' || body.style.display === '') {
+                                body.style.display = 'flex';
+                                widget.style.flex = '1';
+                                icon.style.transform = 'rotate(180deg)';
+                                document.getElementById('aside-user-search').focus();
+                            } else {
+                                body.style.display = 'none';
+                                widget.style.flex = 'none';
+                                icon.style.transform = 'rotate(0deg)';
+                                document.getElementById('aside-user-search').value = '';
+                                filterAsideUsers();
+                                closeAsideChat(); // reset view
+                            }
+                        }
 
-        <!-- Report Modal -->
-        <div class="modal-overlay" id="modalReport">
-            <div class="modal-card" style="max-width: 400px; text-align: center;">
-                <div class="modal-header" style="justify-content: center;">
-                    <h3 class="modal-title">Report Content</h3>
-                </div>
-                <p style="color: var(--text-secondary); margin-bottom: 24px;">Please select the reason for reporting this
-                    post.</p>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
-                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                        <span style="display: flex; align-items: center; gap: 10px;">🚩 Spam or misleading</span>
-                    </button>
-                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                        <span style="display: flex; align-items: center; gap: 10px;">🚫 Hate speech or harassment</span>
-                    </button>
-                    <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
-                        <span style="display: flex; align-items: center; gap: 10px;">🔞 Inappropriate media</span>
-                    </button>
-                </div>
-                <div style="display:flex; justify-content: center; gap: 12px;">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalReport')">Cancel</button>
-                    <button type="button" class="btn btn-primary"
-                        onclick="alert('Thank you for reporting!') || closeModal('modalReport')">Submit Report</button>
+                        function filterAsideUsers() {
+                            const query = document.getElementById('aside-user-search').value.toLowerCase().trim();
+                            const items = document.querySelectorAll('.aside-contact-item');
+                            const emptyState = document.getElementById('messenger-empty-state');
+                            const hasRecent = document.querySelectorAll('.aside-contact-item[data-recent="true"]').length > 0;
+
+                            if (!query) {
+                                items.forEach(item => {
+                                    item.style.display = item.dataset.recent === 'true' ? 'flex' : 'none';
+                                });
+                                if (emptyState) {
+                                    emptyState.style.display = hasRecent ? 'none' : 'block';
+                                }
+                                return;
+                            }
+
+                            if (emptyState) emptyState.style.display = 'none';
+
+                            items.forEach(item => {
+                                const name = item.innerText.trim().toLowerCase();
+                                item.style.display = name.startsWith(query) ? 'flex' : 'none';
+                            });
+                        }
+
+                        let currentAsideChatUserId = null;
+
+                        function openAsideChat(id, name, avatar) {
+                            currentAsideChatUserId = id;
+                            document.getElementById('messenger-view-contacts').style.display = 'none';
+                            document.getElementById('messenger-view-chat').style.display = 'flex';
+                            document.getElementById('active-chat-name').innerText = name;
+                            document.getElementById('active-chat-avatar').src = avatar;
+
+                            // Clear mock messages
+                            const msgBox = document.getElementById('aside-chat-messages');
+                            msgBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">Loading history...</div>';
+
+                            setTimeout(() => document.getElementById('aside-chat-input').focus(), 100);
+
+                            fetch('/api/messages/' + id)
+                                .then(res => res.json())
+                                .then(data => {
+                                    msgBox.innerHTML = '';
+                                    if (data.messages && data.messages.length > 0) {
+                                        data.messages.forEach(msg => {
+                                            const isMine = msg.sender_id === data.current_user_id;
+                                            const align = isMine ? 'flex-end' : 'flex-start';
+                                            const bg = isMine ? 'var(--accent-gradient)' : 'rgba(0,0,0,0.05)';
+                                            const color = isMine ? 'white' : 'var(--text-primary)';
+                                            const radius = isMine ? '16px 2px 16px 16px' : '2px 16px 16px 16px';
+
+                                            let attachHtml = '';
+                                            if (msg.file_path && msg.file_type && msg.file_type.startsWith('image/')) {
+                                                attachHtml = `<img src="/storage/${msg.file_path}" style="width: 140px; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">`;
+                                            }
+
+                                            let bodyHtml = msg.body ? `<div style="background: ${bg}; padding: 8px 12px; border-radius: ${radius}; max-width: 85%; font-size: 13px; color: ${color}; box-shadow: 0 4px 10px rgba(0,0,0,0.05); word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; line-height: 1.4;">${msg.body}</div>` : '';
+
+                                            if (attachHtml || bodyHtml) {
+                                                const html = `
+                                                <div style="display: flex; flex-direction: column; align-items: ${align}; margin-top: 8px;">
+                                                    ${attachHtml}
+                                                    ${bodyHtml}
+                                                </div>`;
+                                                msgBox.insertAdjacentHTML('beforeend', html);
+                                            }
+                                        });
+                                    } else {
+                                        msgBox.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">Starting with ' + name + '...</div>';
+                                    }
+                                    msgBox.scrollTop = msgBox.scrollHeight;
+                                })
+                                .catch(err => {
+                                    msgBox.innerHTML = '<div style="text-align: center; color: #ef4444; font-size: 11px; margin-bottom: 8px;">Loading error.</div>';
+                                });
+                        }
+
+                        function closeAsideChat() {
+                            currentAsideChatUserId = null;
+                            document.getElementById('messenger-view-chat').style.display = 'none';
+                            document.getElementById('messenger-view-contacts').style.display = 'flex';
+                            document.getElementById('aside-chat-input').value = '';
+                        }
+
+                        function sendAsideMessage(e) {
+                            e.preventDefault();
+                            if (!currentAsideChatUserId) return;
+
+                            const input = document.getElementById('aside-chat-input');
+                            const msg = input.value.trim();
+                            if (!msg) return;
+
+                            const msgBox = document.getElementById('aside-chat-messages');
+
+                            const bubbleHtml = `<div style="background: var(--accent-gradient); padding: 8px 12px; border-radius: 16px 2px 16px 16px; max-width: 85%; font-size: 13px; color: white; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2); word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; line-height: 1.4;">${msg}</div>`;
+
+                            const html = `
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 8px;">
+                                ${bubbleHtml}
+                            </div>`;
+                            msgBox.insertAdjacentHTML('beforeend', html);
+
+                            input.value = '';
+                            msgBox.scrollTop = msgBox.scrollHeight;
+
+                            // AJAX Send to backend
+                            const token = document.querySelector('meta[name="csrf-token"]');
+                            if (token) {
+                                fetch('{{ route('messages.store') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': token.content,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        receiver_id: currentAsideChatUserId,
+                                        body: msg
+                                    })
+                                }).then(res => {
+                                    if (!res.ok) console.error("Message sending error.");
+                                }).catch(err => console.error("Erreur réseau: ", err));
+                            }
+                        }
+                    </script>
+
+                    <!-- Custom Scrollbar style for aside -->
+                    <style>
+                        .sidebar-sticky::-webkit-scrollbar {
+                            width: 4px;
+                        }
+
+                        .sidebar-sticky::-webkit-scrollbar-track {
+                            background: transparent;
+                        }
+
+                        .sidebar-sticky::-webkit-scrollbar-thumb {
+                            background: rgba(0, 0, 0, 0.1);
+                            border-radius: 4px;
+                        }
+                    </style>
+                @endauth
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modals -->
+    @auth
+        @if(!request()->is('admin/*') && !request()->is('dashboard') && !request()->routeIs('categories.*'))
+            <!-- Create Post Modal -->
+            <div class="modal-overlay" id="modalPost">
+                <div class="modal-card"
+                    style="background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 0; overflow: hidden;">
+                    <div class="modal-header"
+                        style="background: rgba(124, 58, 237, 0.02); border-bottom: 1px solid rgba(124, 58, 237, 0.05); padding: 16px 24px;">
+                        <h2 class="modal-title"
+                            style="font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; font-size: 16px;">
+                            Create a New Post</h2>
+                        <button onclick="pulseCloseModal('modalPost')"
+                            style="background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: color 0.2s;"
+                            onmouseover="this.style.color='#ef4444'"
+                            onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+                    </div>
+                    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div style="padding: 20px 24px;">
+                            <!-- Category Selection -->
+                            <div style="margin-bottom: 16px;">
+                                <label
+                                    style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 6px; letter-spacing: 0.5px;">Select
+                                    Community Hub</label>
+                                <div class="custom-select-wrapper" style="position: relative;">
+                                    @php $firstCat = $nav_categories->first(); @endphp
+                                    <input type="hidden" name="category_id" id="category_id_input"
+                                        value="{{ $firstCat ? $firstCat->id : '' }}">
+
+                                    <div id="custom-select-trigger" onclick="toggleCustomSelect()"
+                                        style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid rgba(124, 58, 237, 0.15); background: rgba(248, 250, 252, 0.8); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+                                        <span id="custom-select-text"
+                                            style="color: var(--text-primary); font-weight: 800; font-size: 14px;">{{ $firstCat ? $firstCat->label : 'Select Community...' }}</span>
+                                        <svg id="custom-select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="var(--accent-primary)" stroke-width="2.5"
+                                            style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
+
+                                    <div id="custom-select-options"
+                                        style="position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #ffffff; border: 1px solid rgba(124, 58, 237, 0.1); border-radius: 12px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.15); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 50; overflow: hidden; max-height: 220px; overflow-y: auto;">
+                                        @foreach($nav_categories as $cat)
+                                            <div class="custom-option"
+                                                onclick="selectCategory('{{ $cat->id }}', '{{ $cat->label }}')"
+                                                style="padding: 12px 16px; font-weight: 700; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); border-bottom: 1px solid rgba(0,0,0,0.02);"
+                                                onmouseover="this.style.background='rgba(124, 58, 237, 0.05)'; this.style.color='var(--accent-primary)'; this.style.paddingLeft='24px'"
+                                                onmouseout="this.style.background='transparent'; this.style.color='var(--text-primary)'; this.style.paddingLeft='16px'">
+                                                {{ $cat->label }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <script>
+                                    function toggleCustomSelect() {
+                                        const options = document.getElementById('custom-select-options');
+                                        const trigger = document.getElementById('custom-select-trigger');
+                                        const icon = document.getElementById('custom-select-icon');
+
+                                        if (options.style.visibility === 'hidden') {
+                                            options.style.visibility = 'visible';
+                                            options.style.opacity = '1';
+                                            options.style.transform = 'translateY(0)';
+                                            trigger.style.borderColor = 'var(--accent-primary)';
+                                            trigger.style.background = '#ffffff';
+                                            trigger.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.1)';
+                                            icon.style.transform = 'rotate(180deg)';
+                                        } else {
+                                            closeCustomSelect();
+                                        }
+                                    }
+
+                                    function selectCategory(id, label) {
+                                        document.getElementById('category_id_input').value = id;
+                                        const textSpan = document.getElementById('custom-select-text');
+                                        textSpan.innerText = label;
+                                        closeCustomSelect();
+                                    }
+
+                                    function closeCustomSelect() {
+                                        const options = document.getElementById('custom-select-options');
+                                        const trigger = document.getElementById('custom-select-trigger');
+                                        const icon = document.getElementById('custom-select-icon');
+
+                                        if (options && options.style.visibility === 'visible') {
+                                            options.style.visibility = 'hidden';
+                                            options.style.opacity = '0';
+                                            options.style.transform = 'translateY(-10px)';
+                                            trigger.style.borderColor = 'rgba(124, 58, 237, 0.15)';
+                                            trigger.style.background = 'rgba(248, 250, 252, 0.8)';
+                                            trigger.style.boxShadow = 'none';
+                                            icon.style.transform = 'rotate(0deg)';
+                                        }
+                                    }
+
+                                    document.addEventListener('click', function (e) {
+                                        const wrapper = document.querySelector('.custom-select-wrapper');
+                                        if (wrapper && !wrapper.contains(e.target)) {
+                                            closeCustomSelect();
+                                        }
+                                    });
+                                </script>
+                            </div>
+
+                            <!-- Post Content Group -->
+                            <div
+                                style="background: rgba(248, 250, 252, 0.5); border: 1.5px solid rgba(124, 58, 237, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 16px;">
+                                <input type="text" name="title" placeholder="Post Title" required
+                                    style="width: 100%; padding: 10px; border: none; background: transparent; font-size: 15px; font-weight: 800; color: var(--text-primary); outline: none; border-bottom: 1.5px solid rgba(124, 58, 237, 0.05); margin-bottom: 6px;"
+                                    onfocus="this.parentElement.style.borderColor='var(--accent-primary)'; this.parentElement.style.background='#ffffff'; this.parentElement.style.boxShadow='0 10px 25px -5px rgba(124, 58, 237, 0.08)'"
+                                    onblur="this.parentElement.style.borderColor='rgba(124, 58, 237, 0.1)'; this.parentElement.style.background='rgba(248, 250, 252, 0.5)'; this.parentElement.style.boxShadow='none'">
+
+                                <textarea name="content" placeholder="Share your thoughts with the community..." required
+                                    style="width: 100%; height: 110px; padding: 10px; border: none; background: transparent; font-size: 14px; font-weight: 500; color: var(--text-primary); outline: none; resize: none; line-height: 1.5;"></textarea>
+                            </div>
+
+                            <!-- Media Dropzone -->
+                            <div class="media-dropzone"
+                                style="border: 2px dashed rgba(124, 58, 237, 0.2); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(124, 58, 237, 0.01);"
+                                onclick="document.getElementById('modal-file').click()"
+                                onmouseover="this.style.background='rgba(124, 58, 237, 0.04)'; this.style.borderColor='var(--accent-primary)'"
+                                onmouseout="this.style.background='rgba(124, 58, 237, 0.01)'; this.style.borderColor='rgba(124, 58, 237, 0.2)'">
+                                <div
+                                    style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
+                                        stroke-width="2.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                </div>
+                                <p style="font-size: 12px; font-weight: 800; color: var(--accent-primary); margin-bottom: 2px;">
+                                    Add Media</p>
+                                <p style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Images or video</p>
+                                <input type="file" id="modal-file" name="media" style="display: none;"
+                                    onchange="previewImage(this)">
+                            </div>
+
+                            <div id="image-preview-container" style="margin-top: 12px;">
+                                <img id="image-preview" src=""
+                                    style="width: 100%; border-radius: 10px; display: none; object-fit: cover; max-height: 180px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                                <div class="remove-preview" onclick="removePreview()" style="display: none;">&times;</div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer"
+                            style="padding: 16px 24px; background: rgba(248, 250, 252, 0.8); border-top: 1px solid rgba(124, 58, 237, 0.05); display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button" class="btn-pill ghost" onclick="pulseCloseModal('modalPost')"
+                                style="padding: 10px 20px; font-size: 13px;">Discard</button>
+                            <button type="submit" class="btn-pill primary" style="padding: 10px 24px; font-size: 13px;">Post to
+                                Community</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+
+            <!-- Report Modal -->
+            <div class="modal-overlay" id="modalReport">
+                <div class="modal-card" style="max-width: 400px; text-align: center;">
+                    <div class="modal-header" style="justify-content: center;">
+                        <h3 class="modal-title">Report Content</h3>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Please select the reason for reporting this
+                        post.</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 10px;">🚩 Spam or misleading</span>
+                        </button>
+                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 10px;">🚫 Hate speech or harassment</span>
+                        </button>
+                        <button class="btn btn-outline" style="justify-content: flex-start; padding: 12px 20px; width: 100%;">
+                            <span style="display: flex; align-items: center; gap: 10px;">🔞 Inappropriate media</span>
+                        </button>
+                    </div>
+                    <div style="display:flex; justify-content: center; gap: 12px;">
+                        <button type="button" class="btn-pill ghost" onclick="pulseCloseModal('modalReport')">Cancel</button>
+                        <button type="button" class="btn-pill primary"
+                            onclick="alert('Thank you for reporting!') || pulseCloseModal('modalReport')">Submit Report</button>
+                    </div>
+                </div>
+            </div>
+        @endif
     @endauth
 
     <script>
-        function openModal(id) {
+        function pulseOpenModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
                 modal.style.display = 'flex';
@@ -1940,7 +2547,7 @@
             }
         }
 
-        function closeModal(id) {
+        function pulseCloseModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
                 modal.classList.remove('active');
@@ -2023,24 +2630,86 @@
             }
         }
 
-        // Global Vote Demo
-        document.addEventListener('click', (e) => {
-            const upvote = e.target.closest('.action-btn.upvote');
-            const downvote = e.target.closest('.action-btn.downvote');
+        // AJAX Reactions (no page refresh)
+        function reactToPost(postId, type, btn) {
+            fetch('/posts/' + postId + '/reactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ type: type })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    const group = btn.closest('.action-group');
+                    // update like count
+                    const likeCount = group.querySelector('[data-post-likes="' + postId + '"]');
+                    if (likeCount) likeCount.textContent = data.likes;
+                    // update dislike count
+                    const dislikeCount = group.querySelector('[data-post-dislikes="' + postId + '"]');
+                    if (dislikeCount) dislikeCount.textContent = data.dislikes;
+                    // update active states
+                    const likeBtn = group.querySelector('.like-btn');
+                    const dislikeBtn = group.querySelector('.dislike-btn');
+                    if (likeBtn) {
+                        likeBtn.classList.toggle('active', data.userReaction === 'TOP');
+                        likeBtn.querySelector('svg').style.fill = data.userReaction === 'TOP' ? '#22c55e' : 'none';
+                    }
+                    if (dislikeBtn) {
+                        dislikeBtn.classList.toggle('active', data.userReaction === 'FLOP');
+                        dislikeBtn.querySelector('svg').style.fill = data.userReaction === 'FLOP' ? '#ef4444' : 'none';
+                    }
+                })
+                .catch(err => console.error('Reaction error:', err));
+        }
 
-            if (upvote) {
-                upvote.style.color = '#22c55e';
-                upvote.style.background = 'rgba(34, 197, 94, 0.1)';
-                const down = upvote.parentElement.querySelector('.downvote');
-                if (down) { down.style.color = ''; down.style.background = ''; }
-            }
-            if (downvote) {
-                downvote.style.color = '#ef4444';
-                downvote.style.background = 'rgba(239, 68, 68, 0.1)';
-                const up = downvote.parentElement.querySelector('.upvote');
-                if (up) { up.style.color = ''; up.style.background = ''; }
-            }
-        });
+        function reactToComment(commentId, type, btn) {
+            fetch('/comments/' + commentId + '/reactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ type: type })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    const group = btn.closest('.comment-actions');
+                    // update like count
+                    const likeCount = group.querySelector('[data-comment-likes="' + commentId + '"]');
+                    if (likeCount) likeCount.textContent = data.likes;
+                    // update dislike count
+                    const dislikeCount = group.querySelector('[data-comment-dislikes="' + commentId + '"]');
+                    if (dislikeCount) dislikeCount.textContent = data.dislikes;
+                    // update active states
+                    const likeBtn = group.querySelector('.like-btn');
+                    const dislikeBtn = group.querySelector('.dislike-btn');
+                    if (likeBtn) {
+                        likeBtn.classList.toggle('active', data.userReaction === 'TOP');
+                        if (data.userReaction === 'TOP') {
+                            likeBtn.style.color = '#22c55e';
+                            likeBtn.style.background = 'rgba(34, 197, 94, 0.1)';
+                        } else {
+                            likeBtn.style.color = '';
+                            likeBtn.style.background = '';
+                        }
+                    }
+                    if (dislikeBtn) {
+                        dislikeBtn.classList.toggle('active', data.userReaction === 'FLOP');
+                        if (data.userReaction === 'FLOP') {
+                            dislikeBtn.style.color = '#ef4444';
+                            dislikeBtn.style.background = 'rgba(239, 68, 68, 0.1)';
+                        } else {
+                            dislikeBtn.style.color = '';
+                            dislikeBtn.style.background = '';
+                        }
+                    }
+                })
+                .catch(err => console.error('Reaction error:', err));
+        }
 
         // Close modal on escape
         document.addEventListener('keydown', (e) => {
@@ -2066,6 +2735,15 @@
             document.getElementById('modal-file').value = "";
             document.getElementById('image-preview-container').style.display = 'none';
         }
+        // Close user dropdown on click outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.user-dropdown') && !e.target.closest('#userMenu')) {
+                const menu = document.getElementById('userMenu');
+                if (menu && menu.style.display === 'block') {
+                    menu.style.display = 'none';
+                }
+            }
+        });
     </script>
 </body>
 

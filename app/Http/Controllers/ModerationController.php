@@ -38,7 +38,13 @@ class ModerationController extends Controller
             'reported_comments' => $reportedCommentsQuery->count(),
             'total_users' => User::where('role', 'user')->count(),
             'total_categories' => $user->role === 'moderator' ? $user->moderatedCategories()->count() : Category::count(),
+            'urgent_approvals' => (clone $pendingQuery)->where('created_at', '<=', now()->subDay())->count(),
+            'critical_flags' => (clone $reportedPostsQuery)->where('reports_count', '>=', 5)->count(),
         ];
+
+        $totalContent = Post::count() + Comment::count();
+        $totalReports = $stats['reported_posts'] + $stats['reported_comments'];
+        $stats['health_score'] = $totalContent > 0 ? max(0, 100 - ($totalReports * 2)) : 100;
 
         $recent_reports = $reportedPostsQuery->with('user')->latest()->take(5)->get();
         $recent_pending = $pendingQuery->with('user')->latest()->take(5)->get();

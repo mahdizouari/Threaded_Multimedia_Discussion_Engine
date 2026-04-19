@@ -169,11 +169,37 @@
         @csrf
         @method('patch')
 
-        <!-- Avatar Upload Section -->
+        <!-- Private Identity Section (UML Strict Compliance) -->
+        <div style="margin-bottom: 24px; padding: 20px; background: rgba(124, 58, 237, 0.03); border-radius: 16px; border: 1px solid rgba(124, 58, 237, 0.08);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--accent-primary);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span style="font-size: 11px; font-weight: 800; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.5px;">Private System Identity</span>
+            </div>
+            
+            <div style="display: flex; gap: 16px;">
+                <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input id="first_name" name="first_name" type="text" class="form-input" value="{{ old('first_name', $user->profile->first_name ?? '') }}" required />
+                    @error('first_name')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input id="last_name" name="last_name" type="text" class="form-input" value="{{ old('last_name', $user->profile->last_name ?? '') }}" required />
+                    @error('last_name')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; font-weight: 500;">These details are strictly used for internal system references and are never visible to other users.</p>
+        </div>
+
         <div style="margin-bottom: 32px; display: flex; align-items: center; gap: 24px;">
             <div style="position: relative;">
                 <img id="avatar-preview" 
-                     src="{{ $user->profile && $user->profile->avatar_path ? asset('storage/' . $user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($user->username ?? $user->name) }}" 
+                     src="{{ $user->profile && $user->profile->avatar_path ? asset('storage/' . $user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($user->username) }}" 
                      alt="Avatar Preview" 
                      style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-glass); background: white;">
                 <label for="avatar" style="position: absolute; bottom: 0; right: 0; background: var(--text-primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; transition: var(--transition);">
@@ -185,24 +211,6 @@
                 <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Profile Photo</h4>
                 <p style="font-size: 13px; color: var(--text-secondary);">Click the camera icon to upload a personal photo or keep your comic-style avatar.</p>
                 @error('avatar')
-                    <span class="error-msg">{{ $message }}</span>
-                @enderror
-            </div>
-        </div>
-
-        <div class="flex items-center gap-4" style="display:flex; gap: 16px; margin-bottom: 20px;">
-            <div class="form-group" style="margin-bottom:0; flex:1;">
-                <label for="first_name" class="form-label">First Name</label>
-                <input id="first_name" name="first_name" type="text" class="form-input" value="{{ old('first_name', $user->profile->first_name ?? '') }}" required autofocus />
-                @error('first_name')
-                    <span class="error-msg">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group" style="margin-bottom:0; flex:1;">
-                <label for="last_name" class="form-label">Last Name</label>
-                <input id="last_name" name="last_name" type="text" class="form-input" value="{{ old('last_name', $user->profile->last_name ?? '') }}" required />
-                @error('last_name')
                     <span class="error-msg">{{ $message }}</span>
                 @enderror
             </div>

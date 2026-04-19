@@ -3,14 +3,15 @@
 @section('title', 'Flagged Activity — Pulse')
 
 @section('content')
-    <div class="reports-container" style="padding: 24px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease;">
+    <div class="moderation-container" style="padding: 24px; max-width: 1200px; margin: 0 auto;">
 
         <!-- Premium Header -->
         <div class="page-header">
             <div style="position: relative; z-index: 1;">
-                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px;">Flagged Activity</h1>
+                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px;">Staff Command
+                    Center</h1>
                 <p style="opacity: 0.9; font-size: 16px; font-weight: 500;">
-                    Review content reported by users and ensure community standards are maintained.
+                    Review and maintain community safety standards across all categories.
                 </p>
             </div>
 
@@ -44,18 +45,53 @@
 
             <div style="display: flex; flex-direction: column; gap: 16px;">
                 @forelse($reportedPosts as $post)
-                    <div class="data-list-item" style="border-left: 6px solid #ef4444;">
+                    @php
+                        $severity = 'low';
+                        $color = '#eab308';
+                        if ($post->reports_count >= 5) {
+                            $severity = 'critical';
+                            $color = '#ef4444';
+                        } elseif ($post->reports_count >= 3) {
+                            $severity = 'high';
+                            $color = '#f97316';
+                        }
+                    @endphp
+                    <div class="data-list-item"
+                        style="border-left: 6px solid {{ $color }}; animation: fadeInRow 0.5s ease both;">
                         <div style="flex: 1;">
-                            <div
-                                style="font-size: 11px; color: #ef4444; margin-bottom: 6px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">
-                                CRITICAL FLAG</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <div
+                                    style="font-size: 10px; color: {{ $color }}; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    {{ $severity }} SEVERITY ({{ $post->reports_count }} FLAGS)
+                                </div>
+                                @if($post->updated_at->diffInHours() < 24)
+                                    <span class="badge"
+                                        style="background: rgba(0,0,0,0.05); color: var(--text-muted); font-size: 9px; padding: 2px 8px; border: none;">Recently
+                                        Updated</span>
+                                @endif
+                            </div>
                             <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary);">
-                                {{ $post->title }}</h3>
+                                {{ $post->title }}
+                            </h3>
                             <div
                                 style="font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-                                <span>Author: <strong>u/{{ $post->user->username }}</strong></span>
+                                <span style="display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    u/{{ $post->user->username }}
+                                </span>
                                 <span>•</span>
-                                <span>{{ $post->created_at->diffForHumans() }}</span>
+                                <span style="display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    Last activity: {{ $post->updated_at->diffForHumans() }}
+                                </span>
                             </div>
                         </div>
                         <div style="display: flex; gap: 12px; margin-left: 32px; align-items: center;">
@@ -68,9 +104,9 @@
                                 Review Content
                             </button>
                             <button onclick="openDismissModal('post', {{ $post->id }}, '{{ addslashes($post->title) }}')"
-                                class="btn-pill ghost" style="font-size: 11px;">Dismiss Report</button>
+                                class="btn-pill ghost" style="font-size: 11px;">Dismiss</button>
                             <button onclick="openRejectModal('post', {{ $post->id }}, '{{ addslashes($post->title) }}')"
-                                class="btn-pill danger" style="font-size: 11px;">Rejection & violation</button>
+                                class="btn-pill danger" style="font-size: 11px;">Remove</button>
                         </div>
                     </div>
                 @empty
@@ -96,32 +132,46 @@
 
             <div style="display: flex; flex-direction: column; gap: 16px;">
                 @forelse($reportedComments as $comment)
-                    <div class="data-list-item" style="border-left: 6px solid #f59e0b;">
+                    @php
+                        $cSeverity = 'low';
+                        $cColor = '#eab308';
+                        if ($comment->reports_count >= 5) {
+                            $cSeverity = 'critical';
+                            $cColor = '#ef4444';
+                        } elseif ($comment->reports_count >= 3) {
+                            $cSeverity = 'high';
+                            $cColor = '#f97316';
+                        }
+                    @endphp
+                    <div class="data-list-item" style="border-left: 6px solid {{ $cColor }};">
                         <div style="flex: 1;">
+                            <div
+                                style="font-size: 9px; color: {{ $cColor }}; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">
+                                {{ $cSeverity }} Severity ({{ $comment->reports_count }} Reports)</div>
                             <p
-                                style="font-style: italic; color: var(--text-primary); font-size: 16px; margin-bottom: 10px; line-height: 1.5;">
+                                style="font-style: italic; color: var(--text-primary); font-size: 15px; margin-bottom: 10px; line-height: 1.5;">
                                 "{{ Str::limit($comment->text, 150) }}"</p>
                             <div
-                                style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                                style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
                                 <span>Author: <strong>u/{{ $comment->user->username }}</strong></span>
                                 <span>•</span>
-                                <span>On "{{ $comment->conversation->post->title ?? 'Deleted' }}"</span>
+                                <span>Thread activity: {{ $comment->updated_at->diffForHumans() }}</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 12px; margin-left: 32px; align-items: center;">
+                        <div style="display: flex; gap: 8px; margin-left: 32px; align-items: center;">
                             <button type="button" onclick="openReviewModal(this)" data-type="comment"
                                 data-id="{{ $comment->id }}" data-title="Reported Comment"
                                 data-author="u/{{ $comment->user->username }}" data-content="{{ $comment->text }}" data-image=""
                                 class="btn-pill ghost"
-                                style="color: var(--accent-primary); border: 1.5px solid var(--accent-primary); font-size: 11px;">
+                                style="color: var(--accent-primary); font-size: 10px; padding: 6px 12px;">
                                 Review
                             </button>
                             <button
                                 onclick="openDismissModal('comment', {{ $comment->id }}, '{{ addslashes(Str::limit($comment->text, 30)) }}')"
-                                class="btn-pill ghost" style="font-size: 11px;">Dismiss</button>
+                                class="btn-pill ghost" style="font-size: 10px; padding: 6px 12px;">Dismiss</button>
                             <button
                                 onclick="openRejectModal('comment', {{ $comment->id }}, '{{ addslashes(Str::limit($comment->text, 30)) }}')"
-                                class="btn-pill danger" style="font-size: 11px;">Delete & Violation</button>
+                                class="btn-pill danger" style="font-size: 10px; padding: 6px 12px;">Delete</button>
                         </div>
                     </div>
                 @empty
@@ -173,7 +223,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="padding: 12px 20px;">
-                <button onclick="closeCurrentModal()" class="btn-pill primary"
+                <button onclick="pulseCloseModal('reviewModal')" class="btn-pill primary"
                     style="width: 100%; height: 38px; font-size: 13px;">Finish Review</button>
             </div>
         </div>
@@ -237,16 +287,7 @@
     </div>
 
     <script>
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
 
-        function closeCurrentModal() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            document.body.style.overflow = 'auto';
-        }
 
         function openReviewModal(target) {
             const type = target.dataset.type;
@@ -277,7 +318,7 @@
             // Set dynamic avatar
             document.getElementById('review_author_avatar').style.background = `url('https://api.dicebear.com/7.x/avataaars/svg?seed=${author}') center/cover`;
 
-            openModal('reviewModal');
+            pulseOpenModal('reviewModal');
         }
 
         function openRejectModal(type, id, preview) {
@@ -288,7 +329,7 @@
             form.action = type === 'post' ? `/posts/${id}/reject` : `/comments/${id}/reject`;
             previewEl.innerText = `"${preview}"`;
 
-            openModal('rejectionModal');
+            pulseOpenModal('rejectionModal');
         }
 
         function openDismissModal(type, id, preview) {
@@ -297,14 +338,46 @@
             // Dynamic Route Construction
             form.action = type === 'post' ? `/posts/${id}/dismiss-report` : `/comments/${id}/dismiss-report`;
 
-            openModal('dismissModal');
-        }
-
-        // Close on outside click
-        window.onclick = function (event) {
-            if (event.target.classList.contains('modal-overlay')) {
-                closeCurrentModal();
-            }
+            pulseOpenModal('dismissModal');
         }
     </script>
+
+    <style>
+        .data-list-item {
+                background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .data-list-item:hover {
+                transform: translateX(8px);
+            box-shadow: var(--shadow-md);
+            background: white;
+            }
+
+            @keyframes fadeInRow {
+                from {opacity: 0; transform: translateY(10px); }
+            to {opacity: 1; transform: translateY(0); }
+            }
+
+            .btn-pill {
+                padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            }
+
+            .btn-pill.ghost {background: rgba(0,0,0,0.05); color: var(--text-primary); }
+            .btn-pill.ghost:hover {background: rgba(0,0,0,0.1); }
+            .btn-pill.danger {background: #ef4444; color: white; }
+            .btn-pill.danger:hover {background: #dc2626; transform: scale(1.05); }
+        </style>
 @endsection

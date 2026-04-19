@@ -43,6 +43,26 @@ class ReactionController extends Controller
             ]);
         }
 
+        if ($request->wantsJson()) {
+            $likes = Reaction::where('reactable_id', $post->id)
+                ->where('reactable_type', Post::class)
+                ->whereHas('appreciation', function($q) { $q->where('type', 'TOP'); })
+                ->count();
+            $dislikes = Reaction::where('reactable_id', $post->id)
+                ->where('reactable_type', Post::class)
+                ->whereHas('appreciation', function($q) { $q->where('type', 'FLOP'); })
+                ->count();
+            $userReaction = Reaction::where('user_id', Auth::id())
+                ->where('reactable_id', $post->id)
+                ->where('reactable_type', Post::class)
+                ->first();
+            return response()->json([
+                'likes' => $likes,
+                'dislikes' => $dislikes,
+                'userReaction' => $userReaction ? $userReaction->appreciation->type : null
+            ]);
+        }
+
         return back()->with('success', 'Reaction updated.');
     }
 
@@ -74,6 +94,26 @@ class ReactionController extends Controller
 
             $reaction->appreciation()->create([
                 'type' => $validated['type'],
+            ]);
+        }
+
+        if ($request->wantsJson()) {
+            $likes = Reaction::where('reactable_id', $comment->id)
+                ->where('reactable_type', Comment::class)
+                ->whereHas('appreciation', function($q) { $q->where('type', 'TOP'); })
+                ->count();
+            $dislikes = Reaction::where('reactable_id', $comment->id)
+                ->where('reactable_type', Comment::class)
+                ->whereHas('appreciation', function($q) { $q->where('type', 'FLOP'); })
+                ->count();
+            $userReaction = Reaction::where('user_id', Auth::id())
+                ->where('reactable_id', $comment->id)
+                ->where('reactable_type', Comment::class)
+                ->first();
+            return response()->json([
+                'likes' => $likes,
+                'dislikes' => $dislikes,
+                'userReaction' => $userReaction ? $userReaction->appreciation->type : null
             ]);
         }
 

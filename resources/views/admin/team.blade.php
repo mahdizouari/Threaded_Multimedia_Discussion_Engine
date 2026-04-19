@@ -18,14 +18,13 @@
         </div>
         <div class="pulse-card" style="padding: 0; overflow: hidden;">
             <div style="overflow-x: auto;">
-                <table class="pulse-table" style="min-width: 900px;">
+                <table class="pulse-table">
                     <thead>
                         <tr>
-                            <th style="width: 30%;">User Identity</th>
-                            <th style="width: 25%;">Moderation Scope</th>
-                            <th style="width: 15%;">Status</th>
-                            <th style="width: 15%;">Active Flags</th>
-                            <th style="width: 15%; text-align: right;">Management</th>
+                            <th style="width: 45%;">User Identity & Scope</th>
+                            <th style="width: 20%;">Account Integrity</th>
+                            <th style="width: 15%;">Role</th>
+                            <th style="width: 20%; text-align: right;">Management</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,65 +34,65 @@
                                 <td style="vertical-align: top;">
                                     <div style="display: flex; align-items: center; gap: 16px;">
                                         <div
-                                            style="width: 44px; height: 44px; border-radius: 12px; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 900; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);">
-                                            {{ substr($user->name, 0, 1) }}
+                                            style="width: 48px; height: 48px; border-radius: 14px; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 900; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); flex-shrink: 0;">
+                                            {{ strtoupper(substr($user->username, 0, 1)) }}
                                         </div>
-                                        <div>
-                                            <div style="font-weight: 800; color: var(--text-primary); font-size: 15px;">
-                                                {{ $user->name }}
+                                        <div style="min-width: 0;">
+                                            <div style="font-weight: 800; color: var(--text-primary); font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                                                u/{{ $user->username }}
+                                                @if($user->is_blocked)
+                                                    <span style="background: #ef4444; width: 6px; height: 6px; border-radius: 50%;" title="Blocked"></span>
+                                                @endif
                                             </div>
-                                            <div
-                                                style="font-size: 12px; color: var(--text-muted); margin-top: 2px; font-family: monospace;">
-                                                u/{{ $user->username }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="vertical-align: top;">
-                                    @if($user->role === 'moderator')
-                                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                                            @forelse($user->moderatedCategories as $cat)
-                                                <span class="badge primary" style="font-size: 9px;">{{ strtoupper($cat->label) }}</span>
-                                            @empty
-                                                <span class="badge danger" style="font-size: 9px;">GLOBAL BYPASS</span>
-                                            @endforelse
-                                        </div>
-                                    @else
-                                        <span style="color: var(--text-muted); font-size: 12px; font-weight: 600; opacity: 0.6;">STANDARD MEMBER</span>
-                                    @endif
-                                </td>
-                                <td style="vertical-align: top;">
-                                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                                        <span class="badge {{ $user->role === 'moderator' ? 'primary' : 'ghost' }}" style="font-size: 9px;">
-                                            {{ strtoupper($user->role) }}
-                                        </span>
-                                        @if($user->is_blocked)
-                                            <span class="badge danger" style="font-size: 9px;">SUSPENDED</span>
-                                        @else
-                                            <span class="badge success" style="font-size: 9px;">ACTIVE</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td style="vertical-align: top;">
-                                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                                        @if($totalFlags > 0)
-                                            <div class="badge warning" style="width: fit-content; font-size: 9px;">
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
-                                                {{ $totalFlags }} FLAG{{ $totalFlags > 1 ? 'S' : '' }}
-                                            </div>
-                                        @else
-                                            <div class="badge ghost" style="width: fit-content; font-size: 9px; opacity: 0.6;">
-                                                NO REPORTS
-                                            </div>
-                                        @endif
 
-                                        <div style="margin-top: 2px;">
-                                            @if($user->violations_count > 0)
-                                                <span style="color: {{ $user->violations_count >= 3 ? '#ef4444' : '#f59e0b' }}; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
-                                                    <span style="width: 4px; height: 4px; border-radius: 50%; background: currentColor;"></span>
-                                                    System: {{ $user->violations_count }}/5
-                                                </span>
+
+                                            
+                                            {{-- Scope integrated into ID --}}
+                                            @if($user->role === 'moderator')
+                                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
+                                                    @forelse($user->moderatedCategories as $cat)
+                                                        <span style="font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: rgba(124, 58, 237, 0.1); color: var(--accent-primary); border: 1px solid rgba(124, 58, 237, 0.1);">
+                                                            {{ strtoupper($cat->label) }}
+                                                        </span>
+                                                    @empty
+                                                        <span style="font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: rgba(0, 0, 0, 0.05); color: var(--text-muted);">GLOBAL</span>
+                                                    @endforelse
+                                                </div>
                                             @endif
                                         </div>
+                                    </div>
+                                </td>
+
+                                <td style="vertical-align: top;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        @if($totalFlags > 0)
+                                            <div style="display: flex; align-items: center; gap: 6px; color: #f59e0b; font-size: 11px; font-weight: 700;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                                                {{ $totalFlags }} User Reports
+                                            </div>
+                                        @else
+                                            <div style="color: var(--text-muted); font-size: 11px; font-weight: 600; opacity: 0.5;">No Reports</div>
+                                        @endif
+
+                                        @if($user->violations_count > 0)
+                                            <div style="display: flex; align-items: center; gap: 6px; color: {{ $user->violations_count >= 3 ? '#ef4444' : '#f59e0b' }}; font-size: 11px; font-weight: 800;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                                System: {{ $user->violations_count }}/5
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <td style="vertical-align: top;">
+                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                        <div class="badge {{ $user->role === 'moderator' ? 'primary' : 'ghost' }}" style="font-size: 10px; font-weight: 800; width: fit-content;">
+                                            {{ strtoupper($user->role) }}
+                                        </div>
+                                        @if($user->is_blocked)
+                                            <span style="font-size: 10px; font-weight: 800; color: #ef4444;">SUSPENDED</span>
+                                        @else
+                                            <span style="font-size: 10px; font-weight: 800; color: #22c55e;">ACTIVE</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td style="text-align: right; vertical-align: top;">
@@ -104,7 +103,7 @@
                                                 <button type="submit" class="btn-pill danger" style="padding: 6px 12px; font-size: 11px;">Revoke</button>
                                             </form>
                                         @else
-                                            <button onclick="togglePromoteForm('{{ $user->id }}')" class="btn-pill ghost" style="padding: 6px 12px; font-size: 11px; border: 1px solid var(--accent-primary); color: var(--accent-primary);">Promote</button>
+                                            <button type="button" onclick="togglePromoteForm('{{ $user->id }}')" class="btn-pill ghost" style="padding: 6px 12px; font-size: 11px; border: 1px solid var(--accent-primary); color: var(--accent-primary); font-weight: 700;">Promote to Moderator</button>
                                         @endif
 
                                         @if($user->is_blocked)

@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', [PostController::class, 'index'])->name('home');
 
@@ -25,6 +26,8 @@ Route::resource('posts', PostController::class)->only([
     'index',
     'show',
 ]);
+Route::get('/u/{user:username}', [UserController::class, 'show'])->name('users.show');
+
 
 
 // AUTHENTICATED USER ROUTES
@@ -65,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Messaging
     Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{user}', [\App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
+    Route::get('/api/messages/{user}', [\App\Http\Controllers\MessageController::class, 'fetchMessages'])->name('api.messages.fetch');
     Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
 });
 

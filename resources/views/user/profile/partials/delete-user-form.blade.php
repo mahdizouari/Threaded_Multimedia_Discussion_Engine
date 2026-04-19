@@ -1,18 +1,18 @@
 <section class="space-y-6">
     <header>
         <h2 class="text-lg font-bold text-slate-900">
-            Supprimer le compte
+            Delete Account
         </h2>
 
         <p class="mt-1 text-sm text-slate-600">
-            La suppression est définitive : vos données associées à ce compte seront effacées. Sauvegardez ce dont vous avez besoin avant de continuer.
+            Once your account is deleted, all of its resources and data will be permanently deleted. Please download any data or information that you wish to retain before deleting your account.
         </p>
     </header>
 
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >Supprimer mon compte</x-danger-button>
+    >Delete Account</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
@@ -20,22 +20,22 @@
             @method('delete')
 
             <h2 class="text-lg font-bold text-slate-900">
-                Confirmer la suppression du compte ?
+                Are you sure you want to delete your account?
             </h2>
 
             <p class="mt-1 text-sm text-slate-600">
-                Cette action est irréversible. Saisissez votre mot de passe pour confirmer.
+                Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.
             </p>
 
             <div class="mt-6">
-                <x-input-label for="password" value="Mot de passe" class="sr-only" />
+                <x-input-label for="password" value="Password" class="sr-only" />
 
                 <x-text-input
                     id="password"
                     name="password"
                     type="password"
                     class="mt-0 block w-full max-w-md"
-                    placeholder="Mot de passe"
+                    placeholder="Password"
                 />
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
@@ -43,11 +43,11 @@
 
             <div class="mt-6 flex flex-wrap justify-end gap-3">
                 <x-secondary-button x-on:click="$dispatch('close')">
-                    Annuler
+                    Cancel
                 </x-secondary-button>
 
                 <x-danger-button>
-                    Supprimer définitivement
+                    Delete Account
                 </x-danger-button>
             </div>
         </form>

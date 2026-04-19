@@ -157,11 +157,42 @@
         transition: var(--transition);
         padding: 4px 8px;
         border-radius: var(--radius-sm);
+        border: none;
+        background: transparent;
+        cursor: pointer;
     }
 
     .com-action-btn:hover {
         background: rgba(0,0,0,0.05);
         color: var(--text-primary);
+    }
+    
+    .com-action-btn.like-btn:hover {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+    
+    .com-action-btn.like-btn.active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+    
+    .com-action-btn.like-btn.active svg {
+        fill: #22c55e;
+    }
+
+    .com-action-btn.dislike-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .com-action-btn.dislike-btn.active {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .com-action-btn.dislike-btn.active svg {
+        fill: #ef4444;
     }
 
     .com-action-btn svg {
@@ -241,28 +272,30 @@
 <!-- Post Detail -->
 <article class="post post-detail">
     <div class="post-header">
-        <div class="post-community">
-            <div class="community-avatar" style="width: 24px; height: 24px; font-size: 10px;">{{ substr($post->category->label ?? 'P', 0, 1) }}</div>
-            p/{{ strtolower($post->category->label ?? 'all') }}
-        </div>
-        <div class="post-meta" style="display: flex; align-items: center; gap: 8px;">
-            <img src="{{ $post->user->profile && $post->user->profile->avatar_path ? asset('storage/' . $post->user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($post->user->username ?? $post->user->name) }}" alt="author" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
-            • <span style="display: flex; align-items: center; gap: 6px;">
-                Posted by u/{{ $post->user->username ?? $post->user->name }}
-                @if($post->user->role === 'admin')
-                    <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #ef4444; color: white;">ADMIN</span>
-                @elseif($post->user->role === 'moderator')
-                    <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #8b5cf6; color: white;">MOD</span>
-                @endif
-            </span>
-            @auth
-                @if(Auth::id() !== $post->user_id)
-                <a href="{{ route('messages.show', $post->user_id) }}" title="Send Message" style="margin-left: 4px; color: var(--accent-primary); display: inline-flex; align-items: center;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                </a>
-                @endif
-            @endauth
-            • <span>{{ $post->published_at->diffForHumans() }}</span>
+        <div class="post-header-left">
+            <a href="{{ route('users.show', $post->user->username) }}" class="community-avatar" style="display: block; width: fit-content;">
+                <img src="{{ $post->user->profile && $post->user->profile->avatar_path ? asset('storage/' . $post->user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($post->user->username ?? $post->user->name) }}" alt="author" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </a>
+            <div>
+                <div class="post-community" style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px;">
+                    <a href="{{ route('users.show', $post->user->username) }}" style="color: inherit;">u/{{ $post->user->username ?? $post->user->name }}</a>
+                    @if($post->user->role === 'admin')
+                        <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #ef4444; color: white;">ADMIN</span>
+                    @elseif($post->user->role === 'moderator')
+                        <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #8b5cf6; color: white;">MOD</span>
+                    @endif
+                    @auth
+                        @if(Auth::id() !== $post->user_id)
+                        <a href="{{ route('messages.show', $post->user_id) }}" title="Send Chat" style="margin-left: 4px; color: var(--accent-primary); display: inline-flex; align-items: center;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        </a>
+                        @endif
+                    @endauth
+                </div>
+                <div class="post-meta">
+                    <span style="color: var(--accent-primary); font-weight: 600;">p/{{ strtolower($post->category->label ?? 'all') }}</span> • {{ $post->published_at->diffForHumans() }}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -279,52 +312,64 @@
     @endif
 
     <div class="post-actions" style="margin-top: 24px;">
-        <div class="action-group">
+        <div class="action-group" data-post-id="{{ $post->id }}">
             @if(Auth::check())
-                <form action="{{ route('react.post', $post->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    <input type="hidden" name="type" value="TOP">
-                    <button type="submit" class="action-btn upvote {{ $post->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() ? 'active' : '' }}" title="Top (Upvote)">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                    </button>
-                </form>
+                <button type="button"
+                    class="action-btn like-btn {{ $post->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() ? 'active' : '' }}"
+                    title="Like"
+                    onclick="reactToPost({{ $post->id }}, 'TOP', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                    </svg>
+                </button>
+                <span class="vote-count like-count" data-post-likes="{{ $post->id }}">{{ $post->reactions->where('appreciation.type', 'TOP')->count() }}</span>
             @else
-                <div class="action-btn upvote" style="cursor: default; opacity: 0.5;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                <div class="action-btn like-btn" style="cursor: default; opacity: 0.5;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                    </svg>
                 </div>
+                <span class="vote-count like-count">{{ $post->reactions->where('appreciation.type', 'TOP')->count() }}</span>
             @endif
 
-            <span class="vote-count">{{ $post->reactions->where('appreciation.type', 'TOP')->count() - $post->reactions->where('appreciation.type', 'FLOP')->count() }}</span>
-            
             @if(Auth::check())
-                <form action="{{ route('react.post', $post->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    <input type="hidden" name="type" value="FLOP">
-                    <button type="submit" class="action-btn downvote {{ $post->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() ? 'active' : '' }}" title="Flop (Downvote)">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                </form>
+                <button type="button"
+                    class="action-btn dislike-btn {{ $post->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() ? 'active' : '' }}"
+                    title="Dislike"
+                    onclick="reactToPost({{ $post->id }}, 'FLOP', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"></path>
+                        <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                    </svg>
+                </button>
+                <span class="vote-count dislike-count" data-post-dislikes="{{ $post->id }}">{{ $post->reactions->where('appreciation.type', 'FLOP')->count() }}</span>
             @else
-                <div class="action-btn downvote" style="cursor: default; opacity: 0.5;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <div class="action-btn dislike-btn" style="cursor: default; opacity: 0.5;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"></path>
+                        <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                    </svg>
                 </div>
+                <span class="vote-count dislike-count">{{ $post->reactions->where('appreciation.type', 'FLOP')->count() }}</span>
             @endif
         </div>
-        <button class="interaction-btn">
-            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <button class="interaction-btn"
+            style="transition: all 0.2s;"
+            onmouseover="this.style.color='var(--accent-primary)'; this.style.background='rgba(124, 58, 237, 0.1)';"
+            onmouseout="this.style.color=''; this.style.background='';">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
             {{ $post->conversation->comments->count() ?? 0 }} Comments
         </button>
-        <button class="interaction-btn">
-            <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-            Share
-        </button>
+
 
         @if(Auth::check() && Auth::id() !== $post->user_id)
         <form action="{{ route('posts.report', $post->id) }}" method="POST" style="margin-left: auto;">
             @csrf
             @method('PATCH')
-            <button type="submit" class="interaction-btn" title="Report this content">
-                 <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+            <button type="submit" class="interaction-btn report-btn" title="Report this content" style="transition: all 0.2s;" onmouseover="this.style.color='#f97316'; this.style.background='rgba(249, 115, 22, 0.1)';" onmouseout="this.style.color=''; this.style.background='';">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                  Report
             </button>
         </form>
@@ -352,7 +397,7 @@
 <div class="comments-section">
     <div class="comments-header">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        Discussion
+        Comments
     </div>
 
     <!-- Create Comment -->
@@ -360,7 +405,7 @@
     <div class="comment-form">
         <form action="{{ route('comments.store', $post->id) }}" method="POST">
             @csrf
-            <textarea name="text" class="comment-textarea" placeholder="What are your thoughts?" required></textarea>
+            <textarea name="text" class="comment-textarea" placeholder="Add to the discussion..." required></textarea>
             <div class="comment-form-actions">
                 <button type="submit" class="btn btn-primary" style="padding: 12px 32px;">Post Comment</button>
             </div>
@@ -378,13 +423,13 @@
         @forelse($post->conversation->comments ?? [] as $comment)
         <!-- Individual Comment -->
         <div class="comment">
-            <a href="{{ route('messages.show', $comment->user_id) }}" style="text-decoration: none;">
-                <img src="{{ $comment->user->profile && $comment->user->profile->avatar_path ? asset('storage/' . $comment->user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($comment->user->username ?? $comment->user->name) }}" alt="avatar" class="comment-avatar" style="object-fit: cover;">
+            <a href="{{ route('users.show', $comment->user->username) }}" style="text-decoration: none;">
+                <img src="{{ $comment->user->profile && $comment->user->profile->avatar_path ? asset('storage/' . $comment->user->profile->avatar_path) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . ($comment->user->username) }}" alt="avatar" class="comment-avatar" style="object-fit: cover;">
             </a>
             <div class="comment-body">
                 <div class="comment-header">
-                    <a href="{{ route('messages.show', $comment->user_id) }}" class="comment-author" style="text-decoration: none; color: inherit; font-weight: 700; display: flex; align-items: center; gap: 4px;">
-                        u/{{ $comment->user->username ?? $comment->user->name }}
+                    <a href="{{ route('users.show', $comment->user->username) }}" class="comment-author" style="text-decoration: none; color: inherit; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        u/{{ $comment->user->username }}
                         @if($comment->user->isAdmin())
                             <span style="font-size: 8px; font-weight: 800; padding: 1px 4px; border-radius: 3px; background: #ef4444; color: white;">ADMIN</span>
                         @elseif($comment->user->isModerator())
@@ -424,29 +469,33 @@
                 @endif
                 <div class="comment-actions">
                     @if(Auth::check())
-                    <form action="{{ route('react.comment', $comment->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <input type="hidden" name="type" value="TOP">
-                        <button type="submit" class="com-action-btn {{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() > 0 ? 'active' : '' }}" title="Top" style="{{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() > 0 ? 'color: #22c55e; background: rgba(34, 197, 94, 0.1);' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                            {{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'TOP')->count() }}
-                        </button>
-                    </form>
-                    <form action="{{ route('react.comment', $comment->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <input type="hidden" name="type" value="FLOP">
-                        <button type="submit" class="com-action-btn {{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() > 0 ? 'active' : '' }}" title="Flop" style="{{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() > 0 ? 'color: #ef4444; background: rgba(239, 68, 68, 0.1);' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            {{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'FLOP')->count() }}
-                        </button>
-                    </form>
+                    <button type="button" class="com-action-btn like-btn {{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() > 0 ? 'active' : '' }}" title="Like" style="{{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'TOP')->count() > 0 ? 'color: #22c55e; background: rgba(34, 197, 94, 0.1);' : '' }}" onclick="reactToComment({{ $comment->id }}, 'TOP', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+                            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                        </svg>
+                        <span data-comment-likes="{{ $comment->id }}">{{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'TOP')->count() }}</span>
+                    </button>
+                    <button type="button" class="com-action-btn dislike-btn {{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() > 0 ? 'active' : '' }}" title="Dislike" style="{{ $comment->reactions->where('user_id', Auth::id())->where('appreciation.type', 'FLOP')->count() > 0 ? 'color: #ef4444; background: rgba(239, 68, 68, 0.1);' : '' }}" onclick="reactToComment({{ $comment->id }}, 'FLOP', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"></path>
+                            <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                        </svg>
+                        <span data-comment-dislikes="{{ $comment->id }}">{{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'FLOP')->count() }}</span>
+                    </button>
                     @else
-                    <div class="com-action-btn" style="cursor: default; opacity: 0.5;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                    <div class="com-action-btn like-btn" style="cursor: default; opacity: 0.5;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+                            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                        </svg>
                         {{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'TOP')->count() }}
                     </div>
-                    <div class="com-action-btn" style="cursor: default; opacity: 0.5;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="com-action-btn dislike-btn" style="cursor: default; opacity: 0.5;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"></path>
+                            <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                        </svg>
                         {{ $comment->reactions->filter(fn($r) => $r->appreciation->type === 'FLOP')->count() }}
                     </div>
                     @endif
@@ -469,7 +518,7 @@
                     @if(Auth::check() && Auth::id() !== $comment->user_id)
                     <form action="{{ route('comments.report', $comment->id) }}" method="POST" style="display:inline;">
                         @csrf
-                        <button type="submit" class="com-action-btn" title="Report" style="color: #f59e0b;">
+                        <button type="submit" class="com-action-btn report-btn" title="Report this content" style="transition: all 0.2s;" onmouseover="this.style.color='#f97316'; this.style.background='rgba(249, 115, 22, 0.1)';" onmouseout="this.style.color=''; this.style.background='';">
                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                              Report
                         </button>

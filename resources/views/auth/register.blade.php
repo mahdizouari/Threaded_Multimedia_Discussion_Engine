@@ -54,10 +54,28 @@
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 500px;
-            /* slightly wider for more fields */
-            padding: 40px;
+            max-width: 820px; /* Refined width for better density */
+            padding: 24px 40px; /* Compact padding to remove scroll */
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            margin: auto;
+        }
+
+        .form-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-cols {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .auth-card {
+                padding: 24px;
+                margin: 16px;
+            }
         }
 
         .logo {
@@ -71,7 +89,7 @@
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 40px;
+            margin-bottom: 24px; /* Reduced from 40px */
             text-decoration: none;
             transition: var(--transition);
         }
@@ -100,16 +118,17 @@
         }
 
         .auth-subtitle {
-            font-size: 14px;
+            font-size: 13px; /* Slightly smaller */
             color: var(--text-secondary);
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px; /* Reduced from 32px */
+            font-weight: 500;
         }
 
         .form-row {
             display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 14px;
         }
 
         .form-row>.form-group {
@@ -118,15 +137,15 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 14px; /* Reduced from 20px */
         }
 
         .form-label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px; /* ISO Readability tweak */
+            font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .form-input {
@@ -136,7 +155,7 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, 0.8);
             color: var(--text-primary);
-            font-size: 15px;
+            font-size: 14px; /* Slightly smaller for density */
             transition: var(--transition);
             outline: none;
         }
@@ -145,6 +164,25 @@
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }
+
+        /* ISO Staggered Animations */
+        @keyframes staggeredEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-1 { animation: staggeredEntrance 0.4s ease forwards; opacity: 0; }
+        .stagger-2 { animation: staggeredEntrance 0.4s ease 0.1s forwards; opacity: 0; }
+        .stagger-3 { animation: staggeredEntrance 0.4s ease 0.2s forwards; opacity: 0; }
+        .stagger-4 { animation: staggeredEntrance 0.4s ease 0.3s forwards; opacity: 0; }
+        .stagger-5 { animation: staggeredEntrance 0.4s ease 0.4s forwards; opacity: 0; }
+        .stagger-6 { animation: staggeredEntrance 0.4s ease 0.5s forwards; opacity: 0; }
 
         .input-group {
             display: flex;
@@ -215,9 +253,9 @@
         }
 
         .auth-links {
-            margin-top: 24px;
+            margin-top: 16px; /* Reduced from 24px */
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
         }
 
@@ -250,86 +288,104 @@
             Pulse
         </a>
 
-        <h1 class="auth-title">Create an Account</h1>
-        <p class="auth-subtitle">Join the Pulse community today</p>
+        <h1 class="auth-title stagger-1">Create an Account</h1>
+        <p class="auth-subtitle stagger-1">Join the Pulse community today</p>
 
         <form method="POST" action="{{ route('register') }}" id="register-form">
             @csrf
+            
+            <div class="form-cols">
+                <!-- Column 1: Identity -->
+                <div>
+                    <div style="margin-bottom: 24px;" class="stagger-2">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <div style="width: 24px; height: 1px; background: var(--accent-gradient); opacity: 0.3;"></div>
+                            <span style="font-size: 10px; font-weight: 800; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                Private System Identity
+                            </span>
+                            <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input id="first_name" type="text" class="form-input" name="first_name"
+                                    value="{{ old('first_name') }}" required autofocus autocomplete="given-name"
+                                    placeholder="John">
+                                @error('first_name')
+                                    <span class="error-message">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input id="last_name" type="text" class="form-input" name="last_name" value="{{ old('last_name') }}"
+                                    required autocomplete="family-name" placeholder="Doe">
+                                @error('last_name')
+                                    <span class="error-message">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- First & Last Name -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="first_name" class="form-label">First Name</label>
-                    <input id="first_name" type="text" class="form-input" name="first_name"
-                        value="{{ old('first_name') }}" required autofocus autocomplete="given-name">
-                    @error('first_name')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                    <div class="form-group stagger-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <input id="username" type="text" class="form-input" name="username" value="{{ old('username') }}"
+                                required autocomplete="username">
+                            <button type="button" class="btn-secondary" onclick="generateUsername()">Generate</button>
+                        </div>
+                        @error('username')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group stagger-4">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input id="email" type="email" class="form-input" name="email" value="{{ old('email') }}" required
+                            autocomplete="email">
+                        @error('email')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="last_name" class="form-label">Last Name</label>
-                    <input id="last_name" type="text" class="form-input" name="last_name" value="{{ old('last_name') }}"
-                        required autocomplete="family-name">
-                    @error('last_name')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+
+                <!-- Column 2: Account & Interests -->
+                <div>
+                    <div class="form-group stagger-5">
+                        <label class="form-label">Interests (Optional)</label>
+                        <div class="interests-grid" id="interests-container">
+                            @foreach($categories as $cat)
+                                <div class="interest-pill" data-value="{{ $cat->id }}">{{ $cat->label }}</div>
+                            @endforeach
+                        </div>
+                        <input type="hidden" name="interests" id="interests-input" value="">
+                    </div>
+
+                    <div class="form-group stagger-6">
+                        <label for="password" class="form-label" style="display: flex; justify-content: space-between;">
+                            <span>Password</span>
+                            <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">Min. 8 characters</span>
+                        </label>
+                        <input id="password" type="password" class="form-input" name="password" required
+                            autocomplete="new-password">
+                        @error('password')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group stagger-6">
+                        <label for="password_confirmation" class="form-label">Confirm Password</label>
+                        <input id="password_confirmation" type="password" class="form-input" name="password_confirmation"
+                            required autocomplete="new-password">
+                    </div>
                 </div>
             </div>
 
-            <!-- Username -->
-            <div class="form-group">
-                <label for="username" class="form-label">Username</label>
-                <div class="input-group">
-                    <input id="username" type="text" class="form-input" name="username" value="{{ old('username') }}"
-                        required autocomplete="username">
-                    <button type="button" class="btn-secondary" onclick="generateUsername()">Generate</button>
-                </div>
-                @error('username')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
+            <div class="stagger-6">
+                <button type="submit" class="btn-primary">
+                    Create My Pulse Account
+                </button>
             </div>
-
-            <!-- Email Address -->
-            <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <input id="email" type="email" class="form-input" name="email" value="{{ old('email') }}" required
-                    autocomplete="email">
-                @error('email')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Interests -->
-            <div class="form-group">
-                <label class="form-label">Interests (Optional)</label>
-                <div class="interests-grid" id="interests-container">
-                    @foreach($categories as $cat)
-                        <div class="interest-pill" data-value="{{ $cat->id }}">{{ $cat->label }}</div>
-                    @endforeach
-                </div>
-                <input type="hidden" name="interests" id="interests-input" value="">
-            </div>
-
-            <!-- Password -->
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input id="password" type="password" class="form-input" name="password" required
-                    autocomplete="new-password">
-                @error('password')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="form-group">
-                <label for="password_confirmation" class="form-label">Confirm Password</label>
-                <input id="password_confirmation" type="password" class="form-input" name="password_confirmation"
-                    required autocomplete="new-password">
-            </div>
-
-            <button type="submit" class="btn-primary">
-                Sign Up
-            </button>
         </form>
 
         <div class="auth-links">
